@@ -1,12 +1,14 @@
 import WebSocket from "ws";
 import { WebSocketServer } from "ws";
-import type { BufferLike, configtype } from "./types";
+import type { BufferLike, configtype } from "./types.js";
 import { Jetstream } from "@skyware/jetstream";
+import dotenv from "dotenv";
+dotenv.config();
 
 const config: configtype = {
-	wsURL: "wss://jetstream2.us-west.bsky.network/subscribe",
-	wantedCollections: ["app.bsky.feed.post", "app.bsky.feed.like", "app.bsky.feed.repost", "app.bsky.graph.follow"],
-	port: 8000,
+	wsURL: process.env.wsURL ?? "wss://jetstream2.us-west.bsky.network/subscribe",
+	wantedCollections: JSON.parse(process.env.wantedCollections ?? "[]"),
+	port: Number.parseInt(process.env.port ?? "8000"),
 };
 
 const server = new WebSocketServer({ port: config.port });
@@ -28,7 +30,9 @@ const send = (data: BufferLike, collection?: string) => {
 server.on("connection", (connection, req) => {
 	console.log("connect");
 	const { searchParams } = new URL(req.url ?? "/", "wss://ws.url");
-	const wantedCollections = searchParams.has("wantedCollections")?searchParams.getAll("wantedCollections"):config.wantedCollections;
+	const wantedCollections = searchParams.has("wantedCollections")
+		? searchParams.getAll("wantedCollections")
+		: config.wantedCollections;
 	const id = crypto.randomUUID();
 	const cleanup = () => {
 		for (const collection of wantedCollections) {

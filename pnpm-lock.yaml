@@ -11,6 +11,9 @@ importers:
       '@skyware/jetstream':
         specifier: ^0.2.1
         version: 0.2.1(@atcute/client@2.0.6)
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
       ws:
         specifier: ^8.18.0
         version: 8.18.0
@@ -247,6 +250,10 @@ packages:
   '@types/ws@8.5.13':
     resolution: {integrity: sha512-osM/gWBTPKgHV8XkTunnegTRIsvF6owmf5w+JtAfOw472dptdm0dlGv4xCt6GwQRcC2XVOvvRE/0bAoQcL2QkA==}
 
+  dotenv@16.4.5:
+    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+    engines: {node: '>=12'}
+
   esbuild@0.23.1:
     resolution: {integrity: sha512-VVNz/9Sa0bs5SELtn3f7qhJCDPCF5oMEl5cO9/SSinpE9hbPVvxbd572HH5AKiP7WD8INO53GgfDDhRjkylHEg==}
     engines: {node: '>=18'}
@@ -424,6 +431,8 @@ snapshots:
   '@types/ws@8.5.13':
     dependencies:
       '@types/node': 22.10.1
+
+  dotenv@16.4.5: {}
 
   esbuild@0.23.1:
     optionalDependencies:

@@ -7,13 +7,14 @@
 		"lint": "biome lint --write",
 		"format": "biome format --write",
 		"build": "tsc",
-    "start":"node dist/main.js"
+		"start": "node dist/main.js"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
 		"@skyware/jetstream": "^0.2.1",
+		"dotenv": "^16.4.5",
 		"ws": "^8.18.0"
 	},
 	"devDependencies": {
@@ -22,5 +23,6 @@
 		"@types/ws": "^8.5.13",
 		"tsx": "^4.19.2",
 		"typescript": "^5.7.2"
-	}
+	},
+	"type": "module"
 }
