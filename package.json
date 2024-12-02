@@ -1,12 +1,26 @@
 {
-  "name": "JetstreamProxy",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+	"name": "jetstreamproxy",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"lint": "biome lint --write",
+		"format": "biome format --write",
+		"build": "tsc",
+    "start":"node dist/main.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "MIT",
+	"dependencies": {
+		"@skyware/jetstream": "^0.2.1",
+		"ws": "^8.18.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/node": "^22.10.1",
+		"@types/ws": "^8.5.13",
+		"tsx": "^4.19.2",
+		"typescript": "^5.7.2"
+	}
 }
