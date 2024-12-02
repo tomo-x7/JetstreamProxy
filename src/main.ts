@@ -28,7 +28,7 @@ const send = (data: BufferLike, collection?: string) => {
 	}
 };
 server.on("connection", (connection, req) => {
-	console.log("connect");
+	console.log("client connect");
 	const { searchParams } = new URL(req.url ?? "/", "wss://ws.url");
 	const wantedCollections = searchParams.has("wantedCollections")
 		? searchParams.getAll("wantedCollections")
@@ -50,6 +50,7 @@ server.on("connection", (connection, req) => {
 		}
 	}
 	connection.on("close", (code, reason) => {
+        console.log("client disconnect")
 		cleanup();
 	});
 });
@@ -58,9 +59,9 @@ const jetstream = new Jetstream({ ws: WebSocket, endpoint: config.wsURL, wantedC
 jetstream.on("account", (data) => void send(JSON.stringify(data)));
 jetstream.on("identity", (data) => void send(JSON.stringify(data)));
 jetstream.on("commit", (data) => void send(JSON.stringify(data), data.commit.collection));
-jetstream.on("open", () => void console.log("connect"));
+jetstream.on("open", () => void console.log("jetstream connect"));
 jetstream.on("close", () => {
-	console.log("connection closed. reconnecting...");
+	console.log("jetstream connection closed. reconnecting...");
 	jetstream.start();
 });
 jetstream.on("error", (e) => {
