@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import { WebSocketServer } from "ws";
 import type { BufferLike, configtype } from "./types.js";
-import { Jetstream } from "@skyware/jetstream";
+import { type AccountEvent, type CommitEvent, type IdentityEvent, Jetstream } from "@skyware/jetstream";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -50,15 +50,21 @@ server.on("connection", (connection, req) => {
 		}
 	}
 	connection.on("close", (code, reason) => {
-        console.log("client disconnect")
+		console.log("client disconnect");
 		cleanup();
 	});
 });
 
+let cursor = -1;
+function handler(ev: AccountEvent | IdentityEvent | CommitEvent<string>, col?: string) {
+	cursor = ev.time_us;
+	send(JSON.stringify(ev), col);
+}
+
 const jetstream = new Jetstream({ ws: WebSocket, endpoint: config.wsURL, wantedCollections: config.wantedCollections });
-jetstream.on("account", (data) => void send(JSON.stringify(data)));
-jetstream.on("identity", (data) => void send(JSON.stringify(data)));
-jetstream.on("commit", (data) => void send(JSON.stringify(data), data.commit.collection));
+jetstream.on("account", (data) => void handler(data));
+jetstream.on("identity", (data) => void handler(data));
+jetstream.on("commit", (data) => void handler(data, data.commit.collection));
 jetstream.on("open", () => void console.log("jetstream connect"));
 jetstream.on("close", () => {
 	console.log("jetstream connection closed. reconnecting...");
@@ -69,3 +75,16 @@ jetstream.on("error", (e) => {
 	jetstream.start();
 });
 jetstream.start();
+
+let oldCursor = -2;
+setInterval(
+	() => {
+		if (cursor === oldCursor) {
+			console.log("jetstream may be closed. reconnecting...");
+			jetstream.close();
+			jetstream.start();
+		}
+		oldCursor = cursor;
+	},
+	10 * 60 * 1000, // 10 minutes
+);
