@@ -2,6 +2,7 @@ import WebSocket from "ws";
 import { WebSocketServer } from "ws";
 import type { BufferLike, configtype } from "./types.js";
 import { type AccountEvent, type CommitEvent, type IdentityEvent, Jetstream } from "@skyware/jetstream";
+import crypto from 'crypto';
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -17,13 +18,20 @@ for (const collection of config.wantedCollections) {
 	connections.set(collection, new Map());
 }
 const send = (data: BufferLike, collection?: string) => {
+	const sent = new Set<WebSocket>();
 	if (collection == null) {
 		for (const connection of server.clients) {
-			connection.send(data);
+			if (!sent.has(connection)) {
+				connection.send(data);
+				sent.add(connection);
+			}
 		}
 	} else {
 		for (const connection of connections.get(collection)?.values() ?? []) {
-			connection.send(data);
+			if (!sent.has(connection)) {
+				connection.send(data);
+				sent.add(connection);
+			}
 		}
 	}
 };
