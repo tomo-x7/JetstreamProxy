@@ -1,9 +1,8 @@
-import WebSocket from "ws";
-import { WebSocketServer } from "ws";
-import type { BufferLike, configtype } from "./types.js";
+import crypto from "node:crypto";
 import { type AccountEvent, type CommitEvent, type IdentityEvent, Jetstream } from "@skyware/jetstream";
-import crypto from 'crypto';
 import dotenv from "dotenv";
+import WebSocket, { WebSocketServer } from "ws";
+import type { BufferLike, configtype } from "./types.js";
 dotenv.config();
 
 const config: configtype = {
