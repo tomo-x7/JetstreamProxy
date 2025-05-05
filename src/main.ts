@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import { type AccountEvent, type CommitEvent, type IdentityEvent, Jetstream } from "@skyware/jetstream";
 import dotenv from "dotenv";
 import WebSocket, { WebSocketServer } from "ws";
@@ -7,14 +6,14 @@ dotenv.config();
 
 const config: configtype = {
 	wsURL: process.env.wsURL ?? "wss://jetstream2.us-west.bsky.network/subscribe",
-	wantedCollections: JSON.parse(process.env.wantedCollections ?? "[]"),
+	wantedCollections: new Set(JSON.parse(process.env.wantedCollections ?? "[]")),
 	port: Number.parseInt(process.env.port ?? "8000"),
 };
 
 const server = new WebSocketServer({ port: config.port });
-const connections: Map<string, Map<string, WebSocket>> = new Map();
+const connections: Map<string, Set<WebSocket>> = new Map();
 for (const collection of config.wantedCollections) {
-	connections.set(collection, new Map());
+	connections.set(collection, new Set());
 }
 const send = (data: BufferLike, collection?: string) => {
 	const sent = new Set<WebSocket>();
@@ -23,6 +22,9 @@ const send = (data: BufferLike, collection?: string) => {
 			if (!sent.has(connection)) {
 				connection.send(data);
 				sent.add(connection);
+			} else {
+				// never happen
+				console.error("duplicate connection(all collections)");
 			}
 		}
 	} else {
@@ -30,6 +32,9 @@ const send = (data: BufferLike, collection?: string) => {
 			if (!sent.has(connection)) {
 				connection.send(data);
 				sent.add(connection);
+			} else {
+				// never happen
+				console.error("duplicate connection(collection specific)");
 			}
 		}
 	}
@@ -38,17 +43,16 @@ server.on("connection", (connection, req) => {
 	console.log("client connect");
 	const { searchParams } = new URL(req.url ?? "/", "wss://ws.url");
 	const wantedCollections = searchParams.has("wantedCollections")
-		? searchParams.getAll("wantedCollections")
+		? new Set(searchParams.getAll("wantedCollections"))
 		: config.wantedCollections;
-	const id = crypto.randomUUID();
 	const cleanup = () => {
 		for (const collection of wantedCollections) {
-			connections.get(collection)?.delete(id);
+			connections.get(collection)?.delete(connection);
 		}
 	};
 	for (const collection of wantedCollections) {
-		const result = connections.get(collection)?.set(id, connection);
-		if (result === undefined) {
+		const result = connections.get(collection)?.add(connection);
+		if (result == null) {
 			cleanup();
 			connection.close(
 				4000,
@@ -60,6 +64,7 @@ server.on("connection", (connection, req) => {
 		console.log("client disconnect");
 		cleanup();
 	});
+	console.dir(connections, { depth: 1 });
 });
 
 let cursor = -1;
@@ -68,7 +73,11 @@ function handler(ev: AccountEvent | IdentityEvent | CommitEvent<string>, col?: s
 	send(JSON.stringify(ev), col);
 }
 
-const jetstream = new Jetstream({ ws: WebSocket, endpoint: config.wsURL, wantedCollections: config.wantedCollections });
+const jetstream = new Jetstream({
+	ws: WebSocket,
+	endpoint: config.wsURL,
+	wantedCollections: Array.from(config.wantedCollections),
+});
 jetstream.on("account", (data) => void handler(data));
 jetstream.on("identity", (data) => void handler(data));
 jetstream.on("commit", (data) => void handler(data, data.commit.collection));

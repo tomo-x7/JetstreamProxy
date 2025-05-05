@@ -1,4 +1,4 @@
-export type configtype = { wsURL: string; wantedCollections: string[]; port: number };
+export type configtype = { wsURL: string; wantedCollections: Set<string>; port: number };
 export type BufferLike =
 	| string
 	| Buffer
