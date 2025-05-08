@@ -96,34 +96,41 @@ function handler(ev: AccountEvent | IdentityEvent | CommitEvent<string>, col?: s
 	send(JSON.stringify(ev), col);
 }
 
-const jetstream = new Jetstream({
-	ws: WebSocket,
-	endpoint: config.wsURL,
-	wantedCollections: Array.from(config.wantedCollections),
-});
-jetstream.on("account", (data) => void handler(data));
-jetstream.on("identity", (data) => void handler(data));
-jetstream.on("commit", (data) => void handler(data, data.commit.collection));
-jetstream.on("open", () => void console.log("jetstream connect"));
-jetstream.on("close", () => {
-	console.log("jetstream connection closed. reconnecting...");
-	jetstream.start();
-});
-jetstream.on("error", (e) => {
-	console.error(e);
-	jetstream.start();
-});
+function createJetstreamInstance() {
+	const endpoint = config.wsURL;
+	const instance = new Jetstream({
+		ws: WebSocket,
+		endpoint,
+		wantedCollections: Array.from(config.wantedCollections),
+	});
+	instance.on("account", (data) => void handler(data));
+	instance.on("identity", (data) => void handler(data));
+	instance.on("commit", (data) => void handler(data, data.commit.collection));
+	instance.on("open", () => void console.log("jetstream connect"));
+	instance.on("close", () => {
+		console.log("jetstream connection closed. reconnecting...");
+		restartJetstream();
+	});
+	instance.on("error", (e) => {
+		console.error(e);
+		restartJetstream();
+	});
+	return instance;
+}
+let jetstream = createJetstreamInstance();
 jetstream.start();
 
+function restartJetstream() {
+	jetstream.close();
+	jetstream = createJetstreamInstance();
+	jetstream.start();
+}
+
 let oldCursor = -2;
-setInterval(
-	() => {
-		if (cursor === oldCursor) {
-			console.log("jetstream may be closed. reconnecting...");
-			jetstream.close();
-			jetstream.start();
-		}
-		oldCursor = cursor;
-	},
-	10 * 60 * 1000, // 10 minutes
-);
+setInterval(() => {
+	if (cursor === oldCursor) {
+		console.log("jetstream may be closed. reconnecting...");
+		restartJetstream();
+	}
+	oldCursor = cursor;
+}, 10 * 60 * 1000);
