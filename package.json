@@ -4,8 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"lint": "biome lint --write",
-		"format": "biome format --write",
+		"lint": "biome check --write",
 		"build": "tsc",
 		"start": "node dist/main.js"
 	},
@@ -13,12 +12,13 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
-		"@skyware/jetstream": "^0.2.1",
 		"dotenv": "^16.4.5",
-		"ws": "^8.18.0"
+		"ws": "^8.18.0",
+		"zstddec": "^0.1.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@skyware/jetstream": "^0.2.1",
 		"@types/node": "^22.10.1",
 		"@types/ws": "^8.5.13",
 		"tsx": "^4.19.2",

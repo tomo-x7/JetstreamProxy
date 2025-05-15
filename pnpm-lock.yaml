@@ -8,19 +8,22 @@ importers:
 
   .:
     dependencies:
-      '@skyware/jetstream':
-        specifier: ^0.2.1
-        version: 0.2.1(@atcute/client@2.0.6)
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
       ws:
         specifier: ^8.18.0
         version: 8.18.0
+      zstddec:
+        specifier: ^0.1.0
+        version: 0.1.0
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4
+      '@skyware/jetstream':
+        specifier: ^0.2.1
+        version: 0.2.1(@atcute/client@2.0.6)
       '@types/node':
         specifier: ^22.10.1
         version: 22.10.1
@@ -302,6 +305,9 @@ packages:
       utf-8-validate:
         optional: true
 
+  zstddec@0.1.0:
+    resolution: {integrity: sha512-w2NTI8+3l3eeltKAdK8QpiLo/flRAr2p8AGeakfMZOXBxOg9HIu4LVDxBi81sYgVhFhdJjv1OrB5ssI8uFPoLg==}
+
 snapshots:
 
   '@atcute/bluesky@1.0.9(@atcute/client@2.0.6)':
@@ -488,3 +494,5 @@ snapshots:
   undici-types@6.20.0: {}
 
   ws@8.18.0: {}
+
+  zstddec@0.1.0: {}
