@@ -67,8 +67,11 @@ function createFilter(wantedCollections: Set<string>): (collection: string) => b
 }
 
 function filter(wanted: Set<string>, collection: string): boolean {
+    if (wanted.size === 0) return true;
 	for (const item of wanted) {
 		if (collection.startsWith(item.replace("*", ""))) return true;
 	}
 	return false;
 }
+
+export const test={createFilter,filter}
