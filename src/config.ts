@@ -1,19 +1,12 @@
 import dotenv from "dotenv";
-
-export interface Config {
-	proxyPort: number;
-	upstreamURL: URL;
-}
+import { Config } from "./types.js";
+import { parseUpstreamURL } from "./util.js";
 
 dotenv.config();
 const { UPSTREAM_URL: rawUpstreamURL, PORT: rawPort } = process.env;
 // upstream urlのバリデーション
-let upstreamURL: URL | null = null;
-if (rawUpstreamURL == null) {
-	upstreamURL = new URL("wss://jetstream2.us-west.bsky.network/subscribe");
-} else if (URL.canParse(rawUpstreamURL)) {
-	upstreamURL = new URL(rawUpstreamURL);
-} else {
+const upstreamURL = parseUpstreamURL(rawUpstreamURL || "wss://jetstream2.us-west.bsky.network/subscribe");
+if (upstreamURL === false) {
 	throw new Error("Invalid UPSTREAM_URL");
 }
 // portのバリデーション
