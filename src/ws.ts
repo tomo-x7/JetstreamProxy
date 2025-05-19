@@ -10,9 +10,9 @@ export class WebSocketClient {
 	 * @param onMessage メッセージ受信時のコールバック
 	 */
 	constructor(
-		private readonly url: URL,
+		private url: URL,
 		private readonly onMessage: (data: RawData) => void,
-		private readonly reconnectURL: () => URL,
+		private readonly getReconnectURL: () => URL,
 	) {
 		this.connect();
 	}
@@ -66,6 +66,7 @@ export class WebSocketClient {
 	private reconnect(): void {
 		// 既に再接続タイマーが設定されている場合は何もしない
 		if (this.reconnectTimer) return;
+		this.url = this.getReconnectURL();
 
 		this.reconnectTimer = setTimeout(() => {
 			console.log("Attempting to reconnect...");
