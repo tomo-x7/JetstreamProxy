@@ -1,4 +1,4 @@
-import { WebSocket, RawData } from "ws";
+import { type RawData, WebSocket } from "ws";
 
 export class WebSocketClient {
 	private webSocket: WebSocket | undefined = undefined;

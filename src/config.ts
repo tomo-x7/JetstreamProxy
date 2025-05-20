@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { Config } from "./types.js";
+import type { Config } from "./types.js";
 import { parsePort, parseUpstreamURL } from "./util.js";
 
 dotenv.config();
@@ -10,8 +10,8 @@ if (upstreamURL === false) {
 	throw new Error("Invalid UPSTREAM_URL");
 }
 // portのバリデーション
-const proxyPort = parsePort(rawPort??8080);
-if(proxyPort===false){
-	throw new Error("Invalid PORT")
+const proxyPort = parsePort(rawPort ?? 8080);
+if (proxyPort === false) {
+	throw new Error("Invalid PORT");
 }
 export const config: Config = { proxyPort, upstreamURL } as const;

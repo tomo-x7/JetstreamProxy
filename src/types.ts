@@ -1,6 +1,6 @@
 import type { UUID } from "node:crypto";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
-import { RawData } from "ws";
+import type { RawData } from "ws";
 
 export interface DownstreamEventMap {
 	message:
@@ -9,7 +9,7 @@ export interface DownstreamEventMap {
 		| [CommitEvent<string>, string, RawData];
 	connect: [UUID, Set<string> | "all"];
 	rejectConnect: [UUID, string];
-	acceptConnect:[UUID]
+	acceptConnect: [UUID];
 	disconnect: [UUID];
 }
 

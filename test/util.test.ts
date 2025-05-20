@@ -1,5 +1,5 @@
-import { describe, test, expect } from "vitest";
-import { parseNSID, parseUpstreamURL, parsePort } from "../src/util.js";
+import { describe, expect, test } from "vitest";
+import { parseNSID, parsePort, parseUpstreamURL } from "../src/util.js";
 
 // https://atproto.com/ja/specs/nsid
 // https://github.com/bluesky-social/jetstream?tab=readme-ov-file#consuming-jetstream
@@ -184,60 +184,60 @@ describe("Upstream URL parse", () => {
 });
 
 describe("Port parse", () => {
-    const testcases: [unknown, number|false][] = [
-        // 有効なポート番号
-        ["8080", 8080],
-        [8080, 8080],
-        ["3000", 3000],
-        [3000, 3000],
-        ["80", 80],
-        [80, 80],
-        ["443", 443],
-        [443, 443],
-        ["0", 0],
-        [0, 0],
-        ["65535", 65535],
-        [65535, 65535],
-        
-        // 無効なポート番号（文字列形式）
-        ["", false],
-        [" ", false],
-        ["abc", false],
-        ["123abc", false],
-        ["abc123", false],
-        ["12.34", false],
-        ["-1", false],
-        ["-80", false],
-        ["65536", false],
-        ["99999", false],
-        ["1.5", false],
-        ["１２３", false],  // 全角数字
-        ["8080 ", false],  // 末尾にスペース
-        [" 8080", false],  // 先頭にスペース
-        ["8 080", false],  // 中間にスペース
-        
-        // 無効なポート番号（数値形式）
-        [-1, false],
-        [65536, false],
-        [99999, false],
-        [1.5, false],
-        [Number.NaN, false],
-        [Number.POSITIVE_INFINITY, false],
-        [Number.NEGATIVE_INFINITY, false],
-        
-        // 無効な型
-        [null, false],
-        [undefined, false],
-        [true, false],
-        [false, false],
-        [{}, false],
-        [[], false],
-        [() => {}, false],
-        [BigInt(8080), false],
-        [Symbol("8080"), false],
-    ];
+	const testcases: [unknown, number | false][] = [
+		// 有効なポート番号
+		["8080", 8080],
+		[8080, 8080],
+		["3000", 3000],
+		[3000, 3000],
+		["80", 80],
+		[80, 80],
+		["443", 443],
+		[443, 443],
+		["0", 0],
+		[0, 0],
+		["65535", 65535],
+		[65535, 65535],
 
-    test.each(testcases)("parsePort(%s) should return %j", (input, expected) => 
-        expect(parsePort(input)).toBe(expected)
-    );
+		// 無効なポート番号（文字列形式）
+		["", false],
+		[" ", false],
+		["abc", false],
+		["123abc", false],
+		["abc123", false],
+		["12.34", false],
+		["-1", false],
+		["-80", false],
+		["65536", false],
+		["99999", false],
+		["1.5", false],
+		["１２３", false], // 全角数字
+		["8080 ", false], // 末尾にスペース
+		[" 8080", false], // 先頭にスペース
+		["8 080", false], // 中間にスペース
+
+		// 無効なポート番号（数値形式）
+		[-1, false],
+		[65536, false],
+		[99999, false],
+		[1.5, false],
+		[Number.NaN, false],
+		[Number.POSITIVE_INFINITY, false],
+		[Number.NEGATIVE_INFINITY, false],
+
+		// 無効な型
+		[null, false],
+		[undefined, false],
+		[true, false],
+		[false, false],
+		[{}, false],
+		[[], false],
+		[() => {}, false],
+		[BigInt(8080), false],
+		[Symbol("8080"), false],
+	];
+
+	test.each(testcases)("parsePort(%s) should return %j", (input, expected) =>
+		expect(parsePort(input)).toBe(expected),
+	);
 });

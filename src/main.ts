@@ -1,13 +1,13 @@
+import type { UUID } from "node:crypto";
 import EventEmitter from "node:events";
-import { DownstreamEventMap, UpstreamEventMap } from "./types.js";
-import { createUpstream } from "./upstream.js";
-import { config } from "./config.js";
-import { createDownstream } from "./downstream.js";
-import { parseClientMap, validateMaxWantedCollection } from "./util.js";
-import { UUID } from "node:crypto";
+import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
 import { Decompressor } from "zstd-napi";
+import { config } from "./config.js";
 import { ZstdDictionary } from "./dict/zstd-dictionary.js";
-import { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
+import { createDownstream } from "./downstream.js";
+import type { DownstreamEventMap, UpstreamEventMap } from "./types.js";
+import { createUpstream } from "./upstream.js";
+import { parseClientMap, validateMaxWantedCollection } from "./util.js";
 
 const upstreamEmmitter = new EventEmitter<UpstreamEventMap>();
 const downstreamEmmitter = new EventEmitter<DownstreamEventMap>();
@@ -21,10 +21,10 @@ downstreamEmmitter.on("connect", (uuid, wanted) => {
 		const isValid = validateMaxWantedCollection(clientMap, wanted);
 		if (!isValid) {
 			downstreamEmmitter.emit("rejectConnect", uuid, "The maximum number of collections (100) has been exceeded");
-            return;
+			return;
 		}
 	}
-    downstreamEmmitter.emit("acceptConnect",uuid)
+	downstreamEmmitter.emit("acceptConnect", uuid);
 	clientMap.set(uuid, wanted);
 	upstreamEmmitter.emit("updateWantedCollections", parseClientMap(clientMap));
 });
@@ -39,7 +39,7 @@ upstreamEmmitter.on("message", (rawdata) => {
 	} else if (rawdata instanceof ArrayBuffer) {
 		buff = Buffer.from(rawdata);
 	} else {
-        // FIXME: どう変換するのかわからん、たぶんBufferで渡ってくることが多いと思うからとりあえず放置
+		// FIXME: どう変換するのかわからん、たぶんBufferで渡ってくることが多いと思うからとりあえず放置
 		console.error("cannot parse rawdata\n", rawdata);
 		return;
 	}

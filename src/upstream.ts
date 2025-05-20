@@ -1,12 +1,8 @@
 // 主にJetstream本体サーバーとの通信
-import EventEmitter from "node:events";
-import { ZSTDDecoder } from "zstddec";
-import { Config, OptionUpdateMsg, UpstreamEventMap } from "./types.js";
-import { RawData, WebSocket } from "ws";
+import type EventEmitter from "node:events";
+import type { RawData } from "ws";
+import type { Config, OptionUpdateMsg, UpstreamEventMap } from "./types.js";
 import { WebSocketClient } from "./ws.js";
-import { Decompressor } from "zstd-napi";
-import { ZstdDictionary } from "./dict/zstd-dictionary.js";
-import type { AccountEvent, IdentityEvent, CommitEvent } from "@skyware/jetstream";
 
 export async function createUpstream(config: Config, emitter: EventEmitter<UpstreamEventMap>) {
 	const wantedCollections = new Set<string>();

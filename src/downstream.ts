@@ -1,10 +1,9 @@
+import { type UUID, randomUUID } from "node:crypto";
 // 主にProxyに接続しているクライアントとの通信
 import type { EventEmitter } from "node:events";
-import { type WebSocket, WebSocketServer } from "ws";
+import { WebSocketServer } from "ws";
 import type { Config } from "./types.js";
 import type { DownstreamEventMap } from "./types.js";
-import { randomUUID, UUID } from "node:crypto";
-import { emit } from "node:process";
 
 export function createDownstream(config: Config, emitter: EventEmitter<DownstreamEventMap>) {
 	const server = new WebSocketServer({ port: config.proxyPort });
