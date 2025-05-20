@@ -109,13 +109,42 @@ export function parseUpstreamURL(url: unknown): URL | false {
 
 export function parsePort(port: unknown): number | false {
 	if (typeof port === "number") {
-		if (port < 0 || port > 65535||Number.isNaN(port)||!Number.isInteger(port)) return false;
+		if (port < 0 || port > 65535 || Number.isNaN(port) || !Number.isInteger(port)) return false;
 		return port;
 	} else if (typeof port === "string") {
 		const parsedPort = Number.parseInt(port, 10);
 		if (Number.isNaN(parsedPort) || parsedPort < 0 || parsedPort > 65535) return false;
-        if(port !== parsedPort.toString()) return false;
+		if (port !== parsedPort.toString()) return false;
 		return parsedPort;
 	}
 	return false;
+}
+
+/**新規クライアント接続時は上限に達しないことを事前にvalidateMaxWantedCollectionで確認すること */
+export function parseClientMap(map: Map<string, Set<string> | "all">): Set<string> | "all" {
+	const wanted = new Set<string>();
+	for (const [key, cols] of map) {
+		if (cols === "all") {
+			return "all";
+		} else {
+			// TODO: app.bsky.feed.*とapp.bsky.feed.likeのような重複を防ぐ
+			for (const col of cols) wanted.add(col);
+		}
+	}
+	if (wanted.size > 100) throw new Error("Too many wanted collections (maximum 100 allowed)");
+	return wanted;
+}
+
+export function validateMaxWantedCollection(
+	oldset: Map<string, Set<string> | "all"> | Set<string>,
+	newset: Set<string>,
+): boolean {
+	const set = oldset instanceof Set ? oldset : new Set<string>();
+	if (oldset instanceof Map) {
+		for (const connect of oldset.values())
+			if (connect !== "all") for (const collection of connect) set.add(collection);
+	}
+	for (const collection of newset) set.add(collection);
+	// TODO: app.bsky.feed.*とapp.bsky.feed.likeのような重複を防ぐ
+	return set.size <= 100;
 }

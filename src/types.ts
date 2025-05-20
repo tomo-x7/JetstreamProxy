@@ -7,16 +7,14 @@ export interface DownstreamEventMap {
 		| [AccountEvent, undefined, RawData]
 		| [IdentityEvent, undefined, RawData]
 		| [CommitEvent<string>, string, RawData];
-	updateWantedCollections: [UUID, Set<string> | "all"];
-	deleteWantedAll: [UUID];
-	rejectConnection: [UUID, string];
+	connect: [UUID, Set<string> | "all"];
+	rejectConnect: [UUID, string];
+	acceptConnect:[UUID]
+	disconnect: [UUID];
 }
 
 export interface UpstreamEventMap {
-	message:
-		| [AccountEvent, undefined, RawData]
-		| [IdentityEvent, undefined, RawData]
-		| [CommitEvent<string>, string, RawData];
+	message: [RawData];
 	updateWantedCollections: [Set<string> | "all"];
 }
 
