@@ -148,3 +148,30 @@ export function validateMaxWantedCollection(
 	// TODO: app.bsky.feed.*とapp.bsky.feed.likeのような重複を防ぐ
 	return set.size <= 100;
 }
+const CACHE = ["app.bsky.feed.post", "app.bsky.feed.like", "app.bsky.feed.repost", "app.bsky.graph.follow"];
+export function createFilter(wanted: Set<string>): ((col: string) => boolean) | false {
+	if (wanted.size === 0) return () => true;
+	const parsedWanted = Array.from(wanted).map(parseNSID);
+	// falseの値が一つでもあれば不可
+	const hasInvalid = parsedWanted.reduce<boolean>((prev, cur) => prev || cur === false, false);
+	if (hasInvalid) return false;
+	const filterInner = (col: string) => {
+		for (const { nsid, hasPrefix } of parsedWanted.filter((v) => v !== false)) {
+			if (hasPrefix) {
+				if (col.startsWith(nsid)) return true;
+			} else {
+				if (nsid === col) return true;
+			}
+		}
+		return false;
+	};
+	const cache = new Map<string, boolean>();
+	for (const collection of CACHE) {
+		cache.set(collection, filterInner(collection));
+	}
+	return (col) => {
+		const cached = cache.get(col);
+		if (cached != null) return cached;
+		return filterInner(col);
+	};
+}
