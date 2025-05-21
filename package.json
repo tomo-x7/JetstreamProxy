@@ -14,11 +14,9 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
+		"@bokuweb/zstd-wasm": "^0.0.27",
 		"dotenv": "^16.4.5",
-		"fzstd": "^0.1.1",
-		"ws": "^8.18.0",
-		"zstd-napi": "^0.0.11",
-		"zstddec": "^0.1.0"
+		"ws": "^8.18.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",

@@ -1,19 +1,24 @@
 import type { UUID } from "node:crypto";
 import EventEmitter from "node:events";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
-import { Decompressor } from "zstd-napi";
 import { config } from "./config.js";
 import { ZstdDictionary } from "./dict/zstd-dictionary.js";
 import { createDownstream } from "./downstream.js";
 import type { DownstreamEventMap, UpstreamEventMap } from "./types.js";
 import { createUpstream } from "./upstream.js";
 import { parseClientMap, validateMaxWantedCollection } from "./util.js";
+import { init, createDCtx, decompressUsingDict } from "@bokuweb/zstd-wasm";
 
 const upstreamEmmitter = new EventEmitter<UpstreamEventMap>();
 const downstreamEmmitter = new EventEmitter<DownstreamEventMap>();
 
-const decompressor = new Decompressor();
-decompressor.loadDictionary(Buffer.from(ZstdDictionary));
+await init();
+const dctx = createDCtx();
+const dict = Buffer.from(ZstdDictionary, "base64");
+const decompress = (data: Buffer) => {
+	const raw = decompressUsingDict(dctx, data, dict);
+	return Buffer.from(raw).toString("utf-8");
+};
 const clientMap = new Map<UUID, Set<string> | "all">();
 
 downstreamEmmitter.on("connect", (uuid, wanted) => {
@@ -43,7 +48,7 @@ upstreamEmmitter.on("message", (rawdata) => {
 		console.error("cannot parse rawdata\n", rawdata);
 		return;
 	}
-	const decompressed = Buffer.from(decompressor.decompress(buff)).toString("ascii");
+	const decompressed = decompress(buff);
 	const data = JSON.parse(decompressed) as AccountEvent | IdentityEvent | CommitEvent<string>;
 	if (data.kind === "commit") {
 		downstreamEmmitter.emit("message", data, data.commit.collection, rawdata);
