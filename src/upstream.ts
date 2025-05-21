@@ -40,12 +40,22 @@ export async function createUpstream(config: Config, emitter: EventEmitter<Upstr
 			allMode = false;
 			wantedCollections.clear();
 			for (const collection of collections) wantedCollections.add(collection);
+			if (wantedCollections.size === 0) wantedCollections.add("example.dummy.collection");
 			upstreamWs.send(createOptionUpdateMsg(wantedCollections));
 		}
 	});
 }
 
 function createOptionUpdateMsg(wantedCollections: Set<string> | undefined): string {
+	if (wantedCollections?.size === 0) {
+		const msg: OptionUpdateMsg = {
+			type: "options_update",
+			payload: {
+				wantedCollections: ["example.dummy.collection"],
+			},
+		};
+		return JSON.stringify(msg);
+	}
 	const msg: OptionUpdateMsg = {
 		type: "options_update",
 		payload: {

@@ -132,6 +132,7 @@ export function parseClientMap(map: Map<string, Set<string> | "all">): Set<strin
 		}
 	}
 	if (wanted.size > 100) throw new Error("Too many wanted collections (maximum 100 allowed)");
+	if (wanted.size === 0) wanted.add("example.dummy.collection");
 	return wanted;
 }
 
