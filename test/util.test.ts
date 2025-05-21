@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { parseNSID, parsePort, parseUpstreamURL } from "../src/util.js";
+import { parseNSID, parsePort, parseUpstreamURL, createFilter } from "../src/util.js";
 
 // https://atproto.com/ja/specs/nsid
 // https://github.com/bluesky-social/jetstream?tab=readme-ov-file#consuming-jetstream
@@ -240,4 +240,70 @@ describe("Port parse", () => {
 	test.each(testcases)("parsePort(%s) should return %j", (input, expected) =>
 		expect(parsePort(input)).toBe(expected),
 	);
+});
+
+describe("create filter", () => {
+	test("空集合は常にtrue", () => {
+		const filter = createFilter(new Set());
+		expect(filter).not.toBe(false);
+		expect(filter!==false&& filter("app.bsky.feed.post")).toBe(true);
+		expect(filter!==false&& filter("com.example.fooBar")).toBe(true);
+	});
+
+	test("単一完全一致", () => {
+		const filter = createFilter(new Set(["app.bsky.feed.post"]));
+		expect(filter).not.toBe(false);
+		expect(filter!==false&& filter("app.bsky.feed.post")).toBe(true);
+		expect(filter!==false&& filter("app.bsky.feed.like")).toBe(false);
+	});
+
+	test("複数完全一致", () => {
+		const filter = createFilter(new Set(["app.bsky.feed.post", "com.example.fooBar"]));
+		expect(filter).not.toBe(false);
+		expect(filter!==false&& filter("app.bsky.feed.post")).toBe(true);
+		expect(filter!==false&& filter("com.example.fooBar")).toBe(true);
+		expect(filter!==false&& filter("app.bsky.feed.like")).toBe(false);
+	});
+
+	test("ワイルドカード一致", () => {
+		const filter = createFilter(new Set(["app.bsky.feed.*"]));
+		expect(filter).not.toBe(false);
+		expect(filter!==false&& filter("app.bsky.feed.post")).toBe(true);
+		expect(filter!==false&& filter("app.bsky.feed.like")).toBe(true);
+		expect(filter!==false&& filter("app.bsky.graph.follow")).toBe(false);
+	});
+
+	test("複数ワイルドカード", () => {
+		const filter = createFilter(new Set(["app.bsky.feed.*", "com.example.*"]));
+		expect(filter).not.toBe(false);
+		expect(filter!==false&& filter("app.bsky.feed.post")).toBe(true);
+		expect(filter!==false&& filter("com.example.fooBar")).toBe(true);
+		expect(filter!==false&& filter("app.bsky.graph.follow")).toBe(false);
+	});
+
+	test("ワイルドカードと完全一致混在", () => {
+		const filter = createFilter(new Set(["app.bsky.feed.*", "app.bsky.graph.follow"]));
+		expect(filter).not.toBe(false);
+		expect(filter!==false&& filter("app.bsky.feed.post")).toBe(true);
+		expect(filter!==false&& filter("app.bsky.graph.follow")).toBe(true);
+		expect(filter!==false&& filter("app.bsky.feed.like")).toBe(true);
+		expect(filter!==false&& filter("com.example.fooBar")).toBe(false);
+	});
+
+	test("不正なNSIDが含まれる場合はfalse", () => {
+		const filter = createFilter(new Set(["app.bsky.feed.*", "invalid*nsid"]));
+		expect(filter).toBe(false);
+	});
+
+	test("キャッシュされているコレクションはキャッシュ経由で判定される", () => {
+		const filter = createFilter(new Set(["app.bsky.feed.post"]));
+		expect(filter).not.toBe(false);
+		// CACHEに含まれるもの
+		expect(filter!==false&& filter("app.bsky.feed.post")).toBe(true);
+		expect(filter!==false&& filter("app.bsky.feed.like")).toBe(false);
+		expect(filter!==false&& filter("app.bsky.feed.repost")).toBe(false);
+		expect(filter!==false&& filter("app.bsky.graph.follow")).toBe(false);
+		// CACHEに含まれないもの
+		expect(filter!==false&& filter("com.example.fooBar")).toBe(false);
+	});
 });
