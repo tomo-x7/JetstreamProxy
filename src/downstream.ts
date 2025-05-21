@@ -20,12 +20,13 @@ export function createDownstream(config: Config, emitter: EventEmitter<Downstrea
 			ws.close(4000, "cannot read req.url");
 			return;
 		}
-		const sp = new URL(req.url).searchParams;
-		const allMode = sp.has("wantedCollections");
+		const sp = new URL(req.url,"ws://example.com").searchParams;
+		const allMode = !sp.has("wantedCollections");
 		const wantedCollections = new Set(sp.getAll("wantedCollections"));
 		const onlyCommit = sp.has("onlyCommit");
 		const compress = sp.has("compress");
 		const filter = createFilter(wantedCollections);
+		console.log(`client connected with ${allMode?"allmode":Array.from(wantedCollections).toString()}`)
 		if (filter === false) {
 			ws.close(4000, "bad collection");
 			return;

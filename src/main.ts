@@ -7,16 +7,17 @@ import { createDownstream } from "./downstream.js";
 import type { DownstreamEventMap, UpstreamEventMap } from "./types.js";
 import { createUpstream } from "./upstream.js";
 import { parseClientMap, validateMaxWantedCollection } from "./util.js";
-import { init, createDCtx, decompressUsingDict } from "@bokuweb/zstd-wasm";
+import { init, createDCtx, decompressUsingDict, freeDCtx } from "@bokuweb/zstd-wasm";
 
 const upstreamEmmitter = new EventEmitter<UpstreamEventMap>();
 const downstreamEmmitter = new EventEmitter<DownstreamEventMap>();
 
 await init();
-const dctx = createDCtx();
 const dict = Buffer.from(ZstdDictionary, "base64");
 const decompress = (data: Buffer) => {
+	const dctx = createDCtx();
 	const raw = decompressUsingDict(dctx, data, dict);
+	freeDCtx(dctx)
 	return Buffer.from(raw).toString("utf-8");
 };
 const clientMap = new Map<UUID, Set<string> | "all">();
