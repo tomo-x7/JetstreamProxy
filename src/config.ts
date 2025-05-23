@@ -10,7 +10,7 @@ if (upstreamURL === false) {
 	exit(1);
 }
 // portのバリデーション
-const proxyPort = parsePort(process.argv[3] ?? 8080);
+const proxyPort = parsePort(process.argv[3] ?? 8000);
 if (proxyPort === false) {
 	console.error("Invalid PORT");
 	exit(1);
