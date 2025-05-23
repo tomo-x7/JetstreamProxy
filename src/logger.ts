@@ -8,14 +8,10 @@ function writeLog(log: string) {
 	logstream.write(`${log}\n`);
 }
 
-try {
-	const aa = await new Promise<string>((resolve, reject) =>
-		asciify("Jetstream Proxy", { font: "slant" }, (err, str) => (err != null ? reject(err) : resolve(str))),
-	);
-	logstream.write(`\n${aa}\n`);
+asciify("Jetstream Proxy", { font: "slant" }, (err, str) => {
+	logstream.write(`\n${str}\n`);
 	logstream.write(`Started at ${new Date().toLocaleString()}\n`);
-} catch (e) {}
-
+});
 interface logger {
 	error: (message: string) => void;
 	warn: (message: string) => void;
@@ -68,7 +64,7 @@ function cleanUp() {
 	if (!logstream.writableEnded) logstream.end("proxy shutdown...");
 }
 process.addListener("exit", cleanUp);
-process.addListener("SIGTERM", ()=>exit(0));
-process.addListener("SIGINT", ()=>exit(0));
-process.addListener("SIGHUP", ()=>exit(0));
-process.addListener("SIGBREAK", ()=>exit(0));
+process.addListener("SIGTERM", () => exit(0));
+process.addListener("SIGINT", () => exit(0));
+process.addListener("SIGHUP", () => exit(0));
+process.addListener("SIGBREAK", () => exit(0));

@@ -15,6 +15,6 @@ if (proxyPort === false) {
 	console.error("Invalid PORT");
 	exit(1);
 }
-const logFile = normalize(process.argv[4] ?? join(import.meta.dirname, "log.txt"));
+const logFile = normalize(process.argv[4] ?? join(__dirname, "log.txt"));
 
 export const config: Config = { proxyPort, upstreamURL, logFile } as const;
