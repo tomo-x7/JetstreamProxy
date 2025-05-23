@@ -47,7 +47,6 @@ describe("E2E", async () => {
 			resolve(ws);
 		}),
 	);
-	upstreamSocket.on("message", (d) => console.log(d instanceof Buffer ? d.toString() : d));
 
 	describe("simple case", async () => {
 		const ws1 = new WebSocket("ws://127.0.0.1:8000/");

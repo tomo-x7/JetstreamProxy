@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"lint": "biome check --write",
-		"build": "tsc",
+		"build": "tsc -b",
 		"start": "node dist/main.js",
 		"test": "tsc --noEmit && vitest run",
 		"test:watch": "vitest watch"
