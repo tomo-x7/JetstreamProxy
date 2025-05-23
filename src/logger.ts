@@ -1,14 +1,12 @@
 import { createWriteStream } from "node:fs";
 import asciify from "asciify";
 import { config } from "./config.js";
+import { exit } from "node:process";
 
 const logstream = createWriteStream(config.logFile, { flags: "a" });
 function writeLog(log: string) {
 	logstream.write(`${log}\n`);
 }
-process.addListener("exit", () => {
-	logstream.end();
-});
 
 try {
 	const aa = await new Promise<string>((resolve, reject) =>
@@ -65,3 +63,12 @@ const red = "\u001b[31m";
 const yellow = "\u001b[33m";
 
 const reset = "\u001b[0m";
+
+function cleanUp() {
+	if (!logstream.writableEnded) logstream.end("proxy shutdown...");
+}
+process.addListener("exit", cleanUp);
+process.addListener("SIGTERM", ()=>exit(0));
+process.addListener("SIGINT", ()=>exit(0));
+process.addListener("SIGHUP", ()=>exit(0));
+process.addListener("SIGBREAK", ()=>exit(0));

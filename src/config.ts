@@ -1,19 +1,20 @@
 import { join, normalize } from "node:path";
-import dotenv from "dotenv";
+import { exit } from "node:process";
 import type { Config } from "./types.js";
 import { parsePort, parseUpstreamURL } from "./util.js";
 
-dotenv.config();
-const { UPSTREAM_URL: rawUpstreamURL, PORT: rawPort, LOG_FILE: rawLogFile } = process.env;
 // upstream urlのバリデーション
-const upstreamURL = parseUpstreamURL(rawUpstreamURL || "wss://jetstream2.us-west.bsky.network/subscribe");
+const upstreamURL = parseUpstreamURL(process.argv[2] || "wss://jetstream2.us-west.bsky.network/subscribe");
 if (upstreamURL === false) {
-	throw new Error("Invalid UPSTREAM_URL");
+	console.error("Invalid UPSTREAM_URL");
+	exit(1);
 }
 // portのバリデーション
-const proxyPort = parsePort(rawPort ?? 8080);
+const proxyPort = parsePort(process.argv[3] ?? 8080);
 if (proxyPort === false) {
-	throw new Error("Invalid PORT");
+	console.error("Invalid PORT");
+	exit(1);
 }
-const logFile = normalize(rawLogFile ?? join(import.meta.dirname, "log.txt"));
+const logFile = normalize(process.argv[4] ?? join(import.meta.dirname, "log.txt"));
+
 export const config: Config = { proxyPort, upstreamURL, logFile } as const;
