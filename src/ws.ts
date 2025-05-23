@@ -1,4 +1,5 @@
 import { type RawData, WebSocket } from "ws";
+import { logger } from "./logger.js";
 
 export class WebSocketClient {
 	private webSocket: WebSocket | undefined = undefined;
@@ -32,10 +33,10 @@ export class WebSocketClient {
 
 			// 新しい接続を作成
 			this.webSocket = new WebSocket(this.url);
+			logger.info(`Connecting to WebSocket: ${this.url}`)
 
 			// イベントハンドラを設定
 			this.webSocket.on("open", () => {
-				console.log(`WebSocket connected to ${this.url.toString()}`);
 				// 再接続タイマーがあればクリア
 				if (this.reconnectTimer) {
 					clearTimeout(this.reconnectTimer);
@@ -46,16 +47,15 @@ export class WebSocketClient {
 			this.webSocket.on("message", this.onMessage);
 
 			this.webSocket.on("error", (error) => {
-				console.error("WebSocket error:", error);
-				// エラー時は特に何もしない（close イベントが発生するはず）
+				logger.error(`WebSocket error: ${error}`);
 			});
 
 			this.webSocket.on("close", (code, reason) => {
-				console.log(`WebSocket closed. Code: ${code}, Reason: ${reason.toString()}`);
+				logger.info(`WebSocket closed. Code: ${code}, Reason: ${reason.toString()}`);
 				this.reconnect();
 			});
 		} catch (error) {
-			console.error("Failed to create WebSocket:", error);
+			logger.error(`Unable to create WebSocket connection: ${error}`);
 			this.reconnect();
 		}
 	}
@@ -69,7 +69,7 @@ export class WebSocketClient {
 		this.url = this.getReconnectURL();
 
 		this.reconnectTimer = setTimeout(() => {
-			console.log("Attempting to reconnect...");
+			logger.info("Attempting to reconnect to WebSocket server...");
 			this.reconnectTimer = undefined;
 			this.connect();
 		}, this.RECONNECT_DELAY_MS);
@@ -83,7 +83,7 @@ export class WebSocketClient {
 		if (this.webSocket?.readyState === WebSocket.OPEN) {
 			this.webSocket.send(data);
 		} else {
-			console.error("Cannot send message: WebSocket is not open");
+			logger.error("Cannot send message: WebSocket connection is not open.");
 		}
 	}
 }

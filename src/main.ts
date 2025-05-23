@@ -1,13 +1,14 @@
 import type { UUID } from "node:crypto";
 import EventEmitter from "node:events";
+import { createDCtx, decompressUsingDict, freeDCtx, init } from "@bokuweb/zstd-wasm";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
 import { config } from "./config.js";
 import { ZstdDictionary } from "./dict/zstd-dictionary.js";
 import { createDownstream } from "./downstream.js";
+import { logger } from "./logger.js";
 import type { DownstreamEventMap, UpstreamEventMap } from "./types.js";
 import { createUpstream } from "./upstream.js";
 import { parseClientMap, validateMaxWantedCollection } from "./util.js";
-import { init, createDCtx, decompressUsingDict, freeDCtx } from "@bokuweb/zstd-wasm";
 
 const upstreamEmmitter = new EventEmitter<UpstreamEventMap>();
 const downstreamEmmitter = new EventEmitter<DownstreamEventMap>();
@@ -17,7 +18,7 @@ const dict = Buffer.from(ZstdDictionary, "base64");
 const decompress = (data: Buffer) => {
 	const dctx = createDCtx();
 	const raw = decompressUsingDict(dctx, data, dict);
-	freeDCtx(dctx)
+	freeDCtx(dctx);
 	return Buffer.from(raw).toString("utf-8");
 };
 const clientMap = new Map<UUID, Set<string> | "all">();
@@ -46,7 +47,7 @@ upstreamEmmitter.on("message", (rawdata) => {
 		buff = Buffer.from(rawdata);
 	} else {
 		// FIXME: どう変換するのかわからん、たぶんBufferで渡ってくることが多いと思うからとりあえず放置
-		console.error("cannot parse rawdata\n", rawdata);
+		logger.error(`Failed to parse raw data: ${String(rawdata)}`);
 		return;
 	}
 	const decompressed = decompress(buff);
@@ -58,7 +59,7 @@ upstreamEmmitter.on("message", (rawdata) => {
 	} else if (data.kind === "account") {
 		downstreamEmmitter.emit("message", data, undefined, rawdata);
 	} else {
-		console.error("Unknown message kind\n", data);
+		logger.warn(`Unknown message kind received: ${JSON.stringify(data)}`);
 	}
 });
 

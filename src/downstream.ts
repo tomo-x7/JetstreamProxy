@@ -1,7 +1,8 @@
 import { type UUID, randomUUID } from "node:crypto";
 // 主にProxyに接続しているクライアントとの通信
 import type { EventEmitter } from "node:events";
-import { WebSocketServer, WebSocket, RawData } from "ws";
+import { type RawData, type WebSocket, WebSocketServer } from "ws";
+import { logger } from "./logger.js";
 import type { Config } from "./types.js";
 import type { DownstreamEventMap } from "./types.js";
 import { createFilter } from "./util.js";
@@ -9,10 +10,10 @@ import { createFilter } from "./util.js";
 export function createDownstream(config: Config, emitter: EventEmitter<DownstreamEventMap>) {
 	const server = new WebSocketServer({ port: config.proxyPort });
 	server.on("error", (error) => {
-		console.error(error);
+		logger.error(`Downstream server error: ${String(error)}`);
 	});
 	server.on("listening", () => {
-		console.log("downstream server start at %d...", config.proxyPort);
+		logger.info(`Downstream server started on port ${config.proxyPort}.`);
 	});
 	server.on("connection", (ws, req) => {
 		const uuid = randomUUID();
@@ -20,14 +21,15 @@ export function createDownstream(config: Config, emitter: EventEmitter<Downstrea
 			ws.close(4000, "cannot read req.url");
 			return;
 		}
-		const sp = new URL(req.url,"ws://example.com").searchParams;
+		const sp = new URL(req.url, "ws://example.com").searchParams;
 		const allMode = !sp.has("wantedCollections");
 		const wantedCollections = new Set(sp.getAll("wantedCollections"));
 		const onlyCommit = sp.has("onlyCommit");
 		const compress = sp.has("compress");
 		const filter = createFilter(wantedCollections);
-		console.log(`client connected with ${allMode?"allmode":Array.from(wantedCollections).toString()}`)
+		logger.logConnect(uuid, allMode, wantedCollections);
 		if (filter === false) {
+			logger.warn(`Client ${uuid} rejected: invalid collection.`);
 			ws.close(4000, "bad collection");
 			return;
 		}
@@ -38,6 +40,7 @@ export function createDownstream(config: Config, emitter: EventEmitter<Downstrea
 				emitter.emit("disconnect", uuid);
 				emitter.off("rejectConnect", onReject);
 				emitter.off("acceptConnect", onAccept);
+				logger.warn(`Client ${uuid} rejected: ${reason}`);
 			}
 		};
 		const onAccept = () => {
@@ -52,6 +55,7 @@ export function createDownstream(config: Config, emitter: EventEmitter<Downstrea
 			emitter.on("rejectConnect", onReject);
 			emitter.on("acceptConnect", onAccept);
 			ws.removeAllListeners();
+			logger.logDisconnect(uuid);
 		});
 		const send = createSend(ws, compress);
 		emitter.on("message", (ev, col, raw) => {

@@ -3,6 +3,7 @@ import type EventEmitter from "node:events";
 import type { RawData } from "ws";
 import type { Config, OptionUpdateMsg, UpstreamEventMap } from "./types.js";
 import { WebSocketClient } from "./ws.js";
+import { logger } from "./logger.js";
 
 export async function createUpstream(config: Config, emitter: EventEmitter<UpstreamEventMap>) {
 	const wantedCollections = new Set<string>();
@@ -36,12 +37,14 @@ export async function createUpstream(config: Config, emitter: EventEmitter<Upstr
 		if (collections === "all") {
 			allMode = true;
 			upstreamWs.send(createOptionUpdateMsg(undefined));
+			logger.upstreamUpdate("all")
 		} else {
 			allMode = false;
 			wantedCollections.clear();
 			for (const collection of collections) wantedCollections.add(collection);
 			if (wantedCollections.size === 0) wantedCollections.add("example.dummy.collection");
 			upstreamWs.send(createOptionUpdateMsg(wantedCollections));
+			logger.upstreamUpdate(wantedCollections)
 		}
 	});
 }

@@ -1,7 +1,7 @@
-import { afterAll, describe, expect, it, test } from "vitest";
-import { WebSocketServer, WebSocket } from "ws";
-import { AccountEvent, IdentityEvent, CommitEvent } from "@skyware/jetstream";
 import { compressUsingDict, createCCtx, freeCCtx, init } from "@bokuweb/zstd-wasm";
+import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
+import { afterAll, describe, expect, test } from "vitest";
+import { WebSocket, WebSocketServer } from "ws";
 import { ZstdDictionary } from "../src/dict/zstd-dictionary.js";
 
 let cursor = 1234;

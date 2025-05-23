@@ -31,4 +31,7 @@ export interface OptionUpdateMsg {
 export interface Config {
 	proxyPort: number;
 	upstreamURL: URL;
+	logFile: string;
 }
+
+export type JetstreamEvent = AccountEvent | IdentityEvent | CommitEvent<string>;
