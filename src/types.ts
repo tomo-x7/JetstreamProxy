@@ -1,19 +1,37 @@
-export type configtype = { wsURL: string; wantedCollections: Set<string>; port: number };
-export type BufferLike =
-	| string
-	| Buffer
-	| DataView
-	| number
-	| ArrayBufferView
-	| Uint8Array
-	| ArrayBuffer
-	| SharedArrayBuffer
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	| readonly any[]
-	| readonly number[]
-	| { valueOf(): ArrayBuffer }
-	| { valueOf(): SharedArrayBuffer }
-	| { valueOf(): Uint8Array }
-	| { valueOf(): readonly number[] }
-	| { valueOf(): string }
-	| { [Symbol.toPrimitive](hint: string): string };
+import type { TID } from "@atproto/common-web";
+import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
+import type { RawData } from "ws";
+
+export interface DownstreamEventMap {
+	message:
+		| [AccountEvent, undefined, RawData]
+		| [IdentityEvent, undefined, RawData]
+		| [CommitEvent<string>, string, RawData];
+	connect: [TID, Set<string> | "all"];
+	rejectConnect: [TID, string];
+	acceptConnect: [TID];
+	disconnect: [TID];
+}
+
+export interface UpstreamEventMap {
+	message: [RawData];
+	updateWantedCollections: [Set<string> | "all"];
+}
+
+export interface OptionUpdateMsg {
+	type: "options_update";
+	payload: {
+		wantedCollections?: string[];
+		/**wantedDidsはまだ対応しない */
+		wantedDids?: never[];
+		maxMessageSizeBytes?: number;
+	};
+}
+
+export interface Config {
+	proxyPort: number;
+	upstreamURL: URL;
+	logFile: string;
+}
+
+export type JetstreamEvent = AccountEvent | IdentityEvent | CommitEvent<string>;

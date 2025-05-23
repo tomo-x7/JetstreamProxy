@@ -1,0 +1,4 @@
+{
+	"main": "tmp/out.js",
+	"output": "tmp/jetstreamproxy.blob"
+}

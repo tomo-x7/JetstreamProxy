@@ -1,28 +1,35 @@
 {
 	"name": "jetstreamproxy",
-	"version": "1.0.0",
+	"version": "0.2.0",
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"lint": "biome lint --write",
-		"format": "biome format --write",
-		"build": "tsc",
-		"start": "node dist/main.js"
+		"lint": "biome check --write",
+		"build": "./build.sh",
+		"start": "node dist/main.js",
+		"test": "tsc --noEmit && vitest run",
+		"test:watch": "vitest watch"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "tomo-x",
 	"license": "MIT",
 	"dependencies": {
-		"@skyware/jetstream": "^0.2.1",
-		"dotenv": "^16.4.5",
+		"@atproto/common-web": "^0.4.2",
+		"@bokuweb/zstd-wasm": "^0.0.27",
+		"asciify": "^1.3.5",
 		"ws": "^8.18.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
+		"@skyware/jetstream": "^0.2.1",
+		"@types/asciify": "^1.3.34",
 		"@types/node": "^22.10.1",
 		"@types/ws": "^8.5.13",
+		"esbuild": "^0.25.4",
+		"postject": "1.0.0-alpha.6",
 		"tsx": "^4.19.2",
-		"typescript": "^5.7.2"
+		"typescript": "^5.7.2",
+		"vitest": "^3.1.3"
 	},
 	"type": "module"
 }
