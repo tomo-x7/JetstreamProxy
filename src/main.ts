@@ -1,5 +1,5 @@
-import type { UUID } from "node:crypto";
 import EventEmitter from "node:events";
+import type { TID } from "@atproto/common-web";
 import { createDCtx, decompressUsingDict, freeDCtx, init } from "@bokuweb/zstd-wasm";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
 import { config } from "./config.js";
@@ -21,22 +21,22 @@ const decompress = (data: Buffer) => {
 	freeDCtx(dctx);
 	return Buffer.from(raw).toString("utf-8");
 };
-const clientMap = new Map<UUID, Set<string> | "all">();
+const clientMap = new Map<TID, Set<string> | "all">();
 
-downstreamEmmitter.on("connect", (uuid, wanted) => {
+downstreamEmmitter.on("connect", (tid, wanted) => {
 	if (wanted !== "all") {
 		const isValid = validateMaxWantedCollection(clientMap, wanted);
 		if (!isValid) {
-			downstreamEmmitter.emit("rejectConnect", uuid, "The maximum number of collections (100) has been exceeded");
+			downstreamEmmitter.emit("rejectConnect", tid, "The maximum number of collections (100) has been exceeded");
 			return;
 		}
 	}
-	downstreamEmmitter.emit("acceptConnect", uuid);
-	clientMap.set(uuid, wanted);
+	downstreamEmmitter.emit("acceptConnect", tid);
+	clientMap.set(tid, wanted);
 	upstreamEmmitter.emit("updateWantedCollections", parseClientMap(clientMap));
 });
-downstreamEmmitter.on("disconnect", (uuid) => {
-	clientMap.delete(uuid);
+downstreamEmmitter.on("disconnect", (tid) => {
+	clientMap.delete(tid);
 	upstreamEmmitter.emit("updateWantedCollections", parseClientMap(clientMap));
 });
 upstreamEmmitter.on("message", (rawdata) => {

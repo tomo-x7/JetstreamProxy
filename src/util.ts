@@ -1,3 +1,5 @@
+import type { TID } from "@atproto/common-web";
+
 export function parseNSID(nsid: string): { nsid: string; hasPrefix: boolean } | false {
 	// 空文字列チェック
 	if (!nsid || nsid.length === 0) return false;
@@ -121,7 +123,7 @@ export function parsePort(port: unknown): number | false {
 }
 
 /**新規クライアント接続時は上限に達しないことを事前にvalidateMaxWantedCollectionで確認すること */
-export function parseClientMap(map: Map<string, Set<string> | "all">): Set<string> | "all" {
+export function parseClientMap(map: Map<TID, Set<string> | "all">): Set<string> | "all" {
 	const wanted = new Set<string>();
 	for (const [key, cols] of map) {
 		if (cols === "all") {
@@ -137,7 +139,7 @@ export function parseClientMap(map: Map<string, Set<string> | "all">): Set<strin
 }
 
 export function validateMaxWantedCollection(
-	oldset: Map<string, Set<string> | "all"> | Set<string>,
+	oldset: Map<TID, Set<string> | "all"> | Set<string>,
 	newset: Set<string>,
 ): boolean {
 	const set = oldset instanceof Set ? oldset : new Set<string>();

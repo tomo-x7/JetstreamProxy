@@ -1,4 +1,4 @@
-import type { UUID } from "node:crypto";
+import type { TID } from "@atproto/common-web";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
 import type { RawData } from "ws";
 
@@ -7,10 +7,10 @@ export interface DownstreamEventMap {
 		| [AccountEvent, undefined, RawData]
 		| [IdentityEvent, undefined, RawData]
 		| [CommitEvent<string>, string, RawData];
-	connect: [UUID, Set<string> | "all"];
-	rejectConnect: [UUID, string];
-	acceptConnect: [UUID];
-	disconnect: [UUID];
+	connect: [TID, Set<string> | "all"];
+	rejectConnect: [TID, string];
+	acceptConnect: [TID];
+	disconnect: [TID];
 }
 
 export interface UpstreamEventMap {

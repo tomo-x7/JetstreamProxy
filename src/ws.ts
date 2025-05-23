@@ -33,7 +33,7 @@ export class WebSocketClient {
 
 			// 新しい接続を作成
 			this.webSocket = new WebSocket(this.url);
-			logger.info(`Connecting to WebSocket: ${this.url}`)
+			logger.info(`Connecting to WebSocket: ${this.url}`);
 
 			// イベントハンドラを設定
 			this.webSocket.on("open", () => {

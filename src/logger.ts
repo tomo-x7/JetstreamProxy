@@ -1,7 +1,6 @@
 import { createWriteStream } from "node:fs";
-import { config } from "./config.js";
-import type { JetstreamEvent } from "./types.js";
 import asciify from "asciify";
+import { config } from "./config.js";
 
 const logstream = createWriteStream(config.logFile, { flags: "a" });
 function writeLog(log: string) {
