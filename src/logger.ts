@@ -1,7 +1,7 @@
 import { createWriteStream } from "node:fs";
+import { exit } from "node:process";
 import asciify from "asciify";
 import { config } from "./config.js";
-import { exit } from "node:process";
 
 const logstream = createWriteStream(config.logFile, { flags: "a" });
 function writeLog(log: string) {
