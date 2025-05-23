@@ -9,6 +9,7 @@ import { logger } from "./logger.js";
 import type { DownstreamEventMap, UpstreamEventMap } from "./types.js";
 import { createUpstream } from "./upstream.js";
 import { parseClientMap, validateMaxWantedCollection } from "./util.js";
+import { exit } from "node:process";
 
 async function main() {
 	const upstreamEmmitter = new EventEmitter<UpstreamEventMap>();
@@ -74,3 +75,10 @@ async function main() {
 }
 
 main();
+
+if (process.env.MODE !== "test") {
+	process.addListener("SIGTERM", () => exit(0));
+	process.addListener("SIGINT", () => exit(0));
+	process.addListener("SIGHUP", () => exit(0));
+	process.addListener("SIGBREAK", () => exit(0));
+}

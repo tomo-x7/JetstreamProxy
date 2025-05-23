@@ -1,8 +1,7 @@
-import { compressUsingDict, createCCtx, freeCCtx, init } from "@bokuweb/zstd-wasm";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
+import { join } from "node:path";
 import { afterAll, describe, expect, test } from "vitest";
 import { WebSocket, WebSocketServer } from "ws";
-import { ZstdDictionary } from "../src/dict/zstd-dictionary.js";
 
 let cursor = 1234;
 const accountEvent = (): AccountEvent => ({
@@ -24,22 +23,24 @@ const commitEvent = <T extends string>(collection: T): CommitEvent<T> => ({
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	commit: { cid: "aa", collection, operation: "create", record: { $type: collection } as any, rev: "bb", rkey: "cc" },
 });
-await init();
-const dict = Buffer.from(ZstdDictionary, "base64");
+// await init();
+// const dict = Buffer.from(ZstdDictionary, "base64");
 const compress = (data: object) => {
-	const cctx = createCCtx();
-	const buff = Buffer.from(JSON.stringify(data));
-	const compressed = Buffer.from(compressUsingDict(cctx, buff, dict));
-	freeCCtx(cctx);
-	return compressed;
+	// const cctx = createCCtx();
+	// const buff = Buffer.from(JSON.stringify(data));
+	// const compressed = Buffer.from(compressUsingDict(cctx, buff, dict));
+	// freeCCtx(cctx);
+	// return compressed;
+	return JSON.stringify(data);
 };
 const wait = () => new Promise((resolve) => setTimeout(resolve, 500));
 
 describe("E2E", async () => {
 	const upstreamServer = new WebSocketServer({ port: 8001 });
 	await new Promise<void>((resolve) => upstreamServer.on("listening", () => resolve()));
-	process.env.UPSTREAM_URL = "ws://127.0.0.1:8001";
-	process.env.PROXY_PORT = "8000";
+	process.argv[2] = "ws://127.0.0.1:8001";
+	process.argv[3] = "8000";
+	process.argv[4]=join(import.meta.dirname,"log.txt")
 	await import("../src/main.js");
 
 	const upstreamSocket = await new Promise<WebSocket>((resolve) =>

@@ -68,7 +68,3 @@ function cleanUp() {
 	if (!logstream.writableEnded) logstream.end("proxy shutdown...\n");
 }
 process.addListener("exit", cleanUp);
-process.addListener("SIGTERM", () => exit(0));
-process.addListener("SIGINT", () => exit(0));
-process.addListener("SIGHUP", () => exit(0));
-process.addListener("SIGBREAK", () => exit(0));
