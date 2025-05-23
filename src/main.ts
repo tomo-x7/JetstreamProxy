@@ -1,9 +1,9 @@
 import EventEmitter from "node:events";
 import type { TID } from "@atproto/common-web";
-import { createDCtx, decompressUsingDict, freeDCtx, init } from "@bokuweb/zstd-wasm";
+// import { createDCtx, decompressUsingDict, freeDCtx, init } from "@bokuweb/zstd-wasm";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
 import { config } from "./config.js";
-import { ZstdDictionary } from "./dict/zstd-dictionary.js";
+// import { ZstdDictionary } from "./dict/zstd-dictionary.js";
 import { createDownstream } from "./downstream.js";
 import { logger } from "./logger.js";
 import type { DownstreamEventMap, UpstreamEventMap } from "./types.js";
@@ -14,13 +14,14 @@ async function main() {
 	const upstreamEmmitter = new EventEmitter<UpstreamEventMap>();
 	const downstreamEmmitter = new EventEmitter<DownstreamEventMap>();
 
-	await init();
-	const dict = Buffer.from(ZstdDictionary, "base64");
+	// await init();
+	// const dict = Buffer.from(ZstdDictionary, "base64");
 	const decompress = (data: Buffer) => {
-		const dctx = createDCtx();
-		const raw = decompressUsingDict(dctx, data, dict);
-		freeDCtx(dctx);
-		return Buffer.from(raw).toString("utf-8");
+		// const dctx = createDCtx();
+		// const raw = decompressUsingDict(dctx, data, dict);
+		// freeDCtx(dctx);
+		// return Buffer.from(raw).toString("utf-8");
+		return data.toString("utf-8");
 	};
 	const clientMap = new Map<TID, Set<string> | "all">();
 
