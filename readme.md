@@ -16,7 +16,7 @@ Jetstreamとの通信は圧縮されるので、さらに通信量が抑えら�
 |第三引数|ログファイルの場所|
 コマンド例
 ```SH
-node dist/main.js wss://jetstream2.us-west.bsky.network/subscribe 8000
+node dist/main.js wss://jetstream2.us-west.bsky.network/subscribe 8000 ./log.txt
 ```
 ## 対応しているクエリパラメータ
 - wantedCollections

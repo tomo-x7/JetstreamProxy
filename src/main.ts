@@ -71,3 +71,5 @@ async function main() {
 	const upstream = createUpstream(config, upstreamEmmitter);
 	const downstream = createDownstream(config, downstreamEmmitter);
 }
+
+main();
