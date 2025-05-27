@@ -1,4 +1,5 @@
 import EventEmitter from "node:events";
+import { exit } from "node:process";
 import type { TID } from "@atproto/common-web";
 // import { createDCtx, decompressUsingDict, freeDCtx, init } from "@bokuweb/zstd-wasm";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
@@ -9,7 +10,6 @@ import { logger } from "./logger.js";
 import type { DownstreamEventMap, UpstreamEventMap } from "./types.js";
 import { createUpstream } from "./upstream.js";
 import { parseClientMap, validateMaxWantedCollection } from "./util.js";
-import { exit } from "node:process";
 
 async function main() {
 	const upstreamEmmitter = new EventEmitter<UpstreamEventMap>();

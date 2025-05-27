@@ -1,5 +1,5 @@
-import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
 import { join } from "node:path";
+import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
 import { afterAll, describe, expect, test } from "vitest";
 import { WebSocket, WebSocketServer } from "ws";
 
@@ -40,7 +40,7 @@ describe("E2E", async () => {
 	await new Promise<void>((resolve) => upstreamServer.on("listening", () => resolve()));
 	process.argv[2] = "ws://127.0.0.1:8001";
 	process.argv[3] = "8000";
-	process.argv[4]=join(import.meta.dirname,"log.txt")
+	process.argv[4] = join(import.meta.dirname, "log.txt");
 	await import("../src/main.js");
 
 	const upstreamSocket = await new Promise<WebSocket>((resolve) =>

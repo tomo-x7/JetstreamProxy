@@ -1,6 +1,6 @@
 {
 	"name": "jetstreamproxy",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "",
 	"main": "index.js",
 	"scripts": {
@@ -27,7 +27,7 @@
 		"@types/ws": "^8.5.13",
 		"esbuild": "^0.25.4",
 		"postject": "1.0.0-alpha.6",
-		"tsx": "^4.19.2",
+		"tsx": "^4.19.4",
 		"typescript": "^5.7.2",
 		"vitest": "^3.1.3"
 	},

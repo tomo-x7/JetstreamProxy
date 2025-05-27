@@ -1,5 +1,4 @@
 import { createWriteStream } from "node:fs";
-import { exit } from "node:process";
 import { config } from "./config.js";
 
 const logstream = createWriteStream(config.logFile, { flags: "a" });
