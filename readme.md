@@ -21,8 +21,8 @@ Jetstreamをプロキシするサーバーです。
 ## 対応しているクエリパラメータ
 - wantedCollections
 	- Jetstreamの挙動を模倣しています
-<!-- - compress
-	- Jetstreamと同様の、カスタム辞書を用いたzstd圧縮をします -->
+- compress
+	- Jetstreamと同様の、カスタム辞書を用いたzstd圧縮をします
 - onlyCommit
 	- 独自拡張の引数です
 	- これをtrueに設定するとAccount EventとIdentity Eventを無視します。  

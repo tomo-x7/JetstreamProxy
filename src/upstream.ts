@@ -1,6 +1,6 @@
 // 主にJetstream本体サーバーとの通信
 import type EventEmitter from "node:events";
-import type { RawData } from "ws";
+import { type RawData } from "ws";
 import { logger } from "./logger.js";
 import type { Config, OptionUpdateMsg, UpstreamEventMap } from "./types.js";
 import { WebSocketClient } from "./ws.js";
@@ -9,7 +9,7 @@ export async function createUpstream(config: Config, emitter: EventEmitter<Upstr
 	const wantedCollections = new Set<string>();
 	let allMode = false;
 	const url = new URL(config.upstreamURL);
-	// url.searchParams.set("compress", "true");
+	url.searchParams.set("compress", "true");
 	url.searchParams.set("requireHello", "true");
 	const listener = (rawdata: RawData) => {
 		emitter.emit("message", rawdata);
