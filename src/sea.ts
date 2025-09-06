@@ -17,6 +17,10 @@ export async function getAsset(assetKey: keyof seaConfig["assets"]): Promise<Buf
 				return readFileSync(join(__dirname, "./assets/zstd-wasm/zstd.wasm"));
 			case "zstd_dictionary":
 				return readFileSync(join(__dirname, "./assets/zstd_dictionary/zstd_dictionary"));
+			default: {
+				const _assertNever: never = assetKey;
+				throw new Error(`Unknown asset key: ${assetKey}`);
+			}
 		}
 	}
 }

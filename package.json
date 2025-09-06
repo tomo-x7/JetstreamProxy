@@ -10,7 +10,7 @@
 		"start": "node dist/main.js",
 		"test": "tsc --noEmit && vitest run",
 		"test:watch": "vitest watch",
-		"typecheck": "tsc --noEmit","dev":"tsx src/main.ts"
+		"typecheck": "tsc --noEmit"
 	},
 	"keywords": [],
 	"author": "tomo-x",
