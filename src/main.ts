@@ -16,7 +16,7 @@ async function main() {
 	const downstreamEmmitter = new EventEmitter<DownstreamEventMap>();
 
 	await init();
-	const dict = await global.getAsset("zstd_dictionary");
+	const dict = await globalThis.getAsset("zstd_dictionary");
 	const decompress = (data: Buffer) => {
 		const dctx = createDCtx();
 		const raw = decompressUsingDict(dctx, data, dict);

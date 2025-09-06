@@ -1,13 +1,15 @@
 diff --git a/dist/common/index.node.js b/dist/common/index.node.js
-index 0b0cfec0fcd413e5c29dd6df0f89390623585a5f..c096b76f3777b52cda3c16831a9fd85edb550b4b 100644
+index 0b0cfec0fcd413e5c29dd6df0f89390623585a5f..8098f74d9cba5399fde5a1ee172b8fad4a283068 100644
 --- a/dist/common/index.node.js
 +++ b/dist/common/index.node.js
-@@ -28,7 +28,7 @@ const module_1 = require("./module");
+@@ -28,7 +28,9 @@ const module_1 = require("./module");
  const init = () => __awaiter(void 0, void 0, void 0, function* () {
      const { readFile } = require('fs/promises');
      const { resolve } = require('path');
 -    const buf = yield readFile(resolve(__dirname, './zstd.wasm'));
-+    const buf = yield global.getAsset("zstd.wasm");
++    const buf = globalThis.getAsset
++		? yield globalThis.getAsset("zstd.wasm")
++		: yield readFile(resolve(__dirname, './zstd.wasm'));
      module_1.Module['init'](buf);
      yield (0, module_1.waitInitialized)();
  });

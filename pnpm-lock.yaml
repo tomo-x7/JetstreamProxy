@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   '@bokuweb/zstd-wasm@0.0.27':
-    hash: de6a88e654ba6ff17b1006f78b5b39c902b8e3b182d7da93e60de2046c0b2a0d
+    hash: c564178a798d9c95705b1211bff08a243c624e0c7427b54bc07f6953e4a0de42
     path: patches/@bokuweb__zstd-wasm@0.0.27.patch
 
 importers:
@@ -18,7 +18,7 @@ importers:
         version: 0.4.2
       '@bokuweb/zstd-wasm':
         specifier: ^0.0.27
-        version: 0.0.27(patch_hash=de6a88e654ba6ff17b1006f78b5b39c902b8e3b182d7da93e60de2046c0b2a0d)
+        version: 0.0.27(patch_hash=c564178a798d9c95705b1211bff08a243c624e0c7427b54bc07f6953e4a0de42)
       ws:
         specifier: ^8.18.0
         version: 8.18.0
@@ -730,7 +730,7 @@ snapshots:
   '@biomejs/cli-win32-x64@2.2.3':
     optional: true
 
-  '@bokuweb/zstd-wasm@0.0.27(patch_hash=de6a88e654ba6ff17b1006f78b5b39c902b8e3b182d7da93e60de2046c0b2a0d)': {}
+  '@bokuweb/zstd-wasm@0.0.27(patch_hash=c564178a798d9c95705b1211bff08a243c624e0c7427b54bc07f6953e4a0de42)': {}
 
   '@esbuild/aix-ppc64@0.25.4':
     optional: true
