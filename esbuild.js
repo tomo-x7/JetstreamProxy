@@ -1,12 +1,13 @@
 // @ts-check
 import * as esbuild from "esbuild";
-
-await esbuild.build({
+/**@type {esbuild.BuildOptions} */
+export const esbuildOption = {
 	entryPoints: ["src/main.ts"],
 	bundle: true,
-	outfile: "tmp/out.js",
+	outfile: "dist/main.js",
 	platform: "node",
 	target: "node20",
 	format: "cjs",
 	minify: false,
-});
+};
+await esbuild.build(esbuildOption);

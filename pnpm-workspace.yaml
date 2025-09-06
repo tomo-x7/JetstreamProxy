@@ -1,5 +1,3 @@
 onlyBuiltDependencies:
   - esbuild
   - zstd-napi
-overrides:
-  minimist@<0.2.4: '>=0.2.4'

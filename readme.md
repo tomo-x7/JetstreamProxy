@@ -25,9 +25,11 @@ Jetstreamをプロキシするサーバーです。
 	- Jetstreamと同様の、カスタム辞書を用いたzstd圧縮をします -->
 - onlyCommit
 	- 独自拡張の引数です
-	- これをtrueに設定するとAccount EventとIdentity Eventを無視します。  
+	- これをtrueに設定するとAccount EventとIdentity Eventを無視します。
+
 それ以外の引数をURLに含めても何も起こりません。  
 また、サーバーに対し何かを送っても何も起こりません。
 ## 環境
 配布バイナリはLinuxのみ  
-ubuntu 24.04で動作確認済み
+ubuntu 24.04で動作確認済み  
+nodeは22LTSが推奨ですがたぶん20でも動きます
