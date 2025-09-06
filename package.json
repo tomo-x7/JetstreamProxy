@@ -21,7 +21,7 @@
 		"ws": "^8.18.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.1.1",
+		"@biomejs/biome": "2.2.3",
 		"@skyware/jetstream": "^0.2.1",
 		"@types/node": "22",
 		"@types/ws": "^8.5.13",
