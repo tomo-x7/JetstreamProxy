@@ -1,5 +1,6 @@
 onlyBuiltDependencies:
   - esbuild
   - zstd-napi
-overrides:
-  minimist@<0.2.4: '>=0.2.4'
+
+patchedDependencies:
+  '@bokuweb/zstd-wasm@0.0.27': patches/@bokuweb__zstd-wasm@0.0.27.patch

@@ -1,12 +1,16 @@
 {
 	"compilerOptions": {
-		"module": "CommonJS",
+		"module": "esnext",
 		"target": "ESNext",
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,
 		"skipLibCheck": true,
-		"noEmit": true
+		"noEmit": true,
+		"allowJs": true,
+		"checkJs": true,
+		"resolveJsonModule": true,
+		"moduleResolution": "bundler"
 	},
-	"include": ["src/**/*.ts"]
+	"include": ["src/**/*.ts", "build.ts"]
 }
