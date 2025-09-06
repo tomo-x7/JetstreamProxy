@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"module": "nodenext",
+		"module": "esnext",
 		"target": "ESNext",
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
@@ -10,7 +10,7 @@
 		"allowJs": true,
 		"checkJs": true,
 		"resolveJsonModule": true,
-		"moduleResolution": "nodenext"
+		"moduleResolution": "bundler"
 	},
 	"include": ["src/**/*.ts", "build.ts"]
 }

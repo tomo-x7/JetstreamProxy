@@ -5,12 +5,12 @@
 	"main": "index.js",
 	"scripts": {
 		"lint": "biome check --write",
-		"build": "node esbuild.js",
+		"build": "node esbuild.mjs",
 		"build:sea": "tsx build.ts",
 		"start": "node dist/main.js",
 		"test": "tsc --noEmit && vitest run",
 		"test:watch": "vitest watch",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit","dev":"tsx src/main.ts"
 	},
 	"keywords": [],
 	"author": "tomo-x",
@@ -31,5 +31,5 @@
 		"typescript": "^5.7.2",
 		"vitest": "^3.1.3"
 	},
-	"type": "module"
+	"type": "commonjs"
 }

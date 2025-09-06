@@ -5,7 +5,7 @@ import { Writable } from "node:stream";
 import { promisify } from "node:util";
 import * as esbuildLib from "esbuild";
 import { inject } from "postject";
-import { esbuildOption } from "./esbuild.js";
+import { esbuildOption } from "./esbuild.config.mjs";
 import packageJson from "./package.json" with { type: "json" };
 
 // 定数定義
@@ -72,7 +72,7 @@ const nodeUrl = (arch: string, platform = "linux") =>
 const execAsync = promisify(exec);
 const mkdirAsync = promisify(fs.mkdir);
 const copyFileAsync = promisify(fs.copyFile);
-const esbuild = () => esbuildLib.build({ ...esbuildOption, outfile: "tmp/out.js" });
+const esbuild = () => esbuildLib.build({ ...esbuildOption, outfile: "tmp/out.js", minify: true });
 const genName = (arch: string, platform = "linux") => `jetstreamproxy_${VERSION}_${NODE_VERSION}_${platform}_${arch}`;
 
 main();
