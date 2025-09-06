@@ -9,7 +9,7 @@ export async function createUpstream(config: Config, emitter: EventEmitter<Upstr
 	const wantedCollections = new Set<string>();
 	let allMode = false;
 	const url = new URL(config.upstreamURL);
-	// url.searchParams.set("compress", "true");
+	url.searchParams.set("compress", "true");
 	url.searchParams.set("requireHello", "true");
 	const listener = (rawdata: RawData) => {
 		emitter.emit("message", rawdata);

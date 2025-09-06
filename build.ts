@@ -1,5 +1,6 @@
 import { exec, execSync } from "node:child_process";
 import fs from "node:fs";
+import { exit } from "node:process";
 import { Writable } from "node:stream";
 import { promisify } from "node:util";
 import * as esbuildLib from "esbuild";
@@ -19,10 +20,10 @@ async function main() {
 	fs.rmSync("tmp", { recursive: true, force: true });
 	fs.mkdirSync("tmp", { recursive: true });
 	// nodeが存在しないかfreshオプションがついてたら
-	if (!fs.existsSync("node")||process.argv.includes("--fresh")) {
+	if (!fs.existsSync("node") || process.argv.includes("--fresh")) {
 		// nodeをダウンロード
 		fs.rmSync("node", { recursive: true, force: true });
-		fs.mkdirSync("node",{ recursive: true });
+		fs.mkdirSync("node", { recursive: true });
 		const promises = LINUX_ARCH.map((arch) =>
 			downloadNode(nodeUrl(arch), `tmp/node-${arch}.tar.gz`, "linux", arch),
 		);
@@ -33,7 +34,11 @@ async function main() {
 	}
 	// 型チェック&ビルド&バンドル
 	await esbuild();
-	execSync("pnpm typecheck", { stdio: "inherit" });
+	try {
+		execSync("pnpm typecheck", { stdio: "inherit" });
+	} catch (e) {
+		exit(1);
+	}
 	// SEA blobの生成
 	execSync("node --experimental-sea-config sea-config.json", { stdio: "inherit" });
 	const seaBlob = fs.readFileSync("tmp/jetstreamproxy.blob");

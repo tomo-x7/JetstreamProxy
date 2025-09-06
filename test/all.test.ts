@@ -20,7 +20,6 @@ const commitEvent = <T extends string>(collection: T): CommitEvent<T> => ({
 	kind: "commit",
 	did: "did:web:example.com",
 	time_us: cursor++,
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	commit: { cid: "aa", collection, operation: "create", record: { $type: collection } as any, rev: "bb", rkey: "cc" },
 });
 // await init();

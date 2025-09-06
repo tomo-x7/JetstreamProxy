@@ -3,8 +3,7 @@ import type { EventEmitter } from "node:events";
 import { TID } from "@atproto/common-web";
 import { type RawData, type WebSocket, WebSocketServer } from "ws";
 import { logger } from "./logger.js";
-import type { Config } from "./types.js";
-import type { DownstreamEventMap } from "./types.js";
+import type { Config, DownstreamEventMap } from "./types.js";
 import { createFilter } from "./util.js";
 
 export function createDownstream(config: Config, emitter: EventEmitter<DownstreamEventMap>) {

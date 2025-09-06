@@ -1,4 +1,10 @@
 {
 	"main": "tmp/out.js",
-	"output": "tmp/jetstreamproxy.blob"
+	"output": "tmp/jetstreamproxy.blob",
+	"disableExperimentalSEAWarning": true,
+	"useCodeCache": true,
+	"assets": {
+		"zstd.wasm": "./src/assets/zstd-wasm/zstd.wasm",
+		"zstd_dictionary": "./src/assets/zstd_dictionary/zstd_dictionary"
+	}
 }
