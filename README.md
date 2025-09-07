@@ -30,4 +30,6 @@ Configure using command-line arguments.
 Command Example:
 ```sh
 ./jetstreamproxy wss://jetstream2.us-west.bsky.network/subscribe 8000 ./log.txt
+```
+
 
