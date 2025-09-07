@@ -1,9 +1,9 @@
 // 主にJetstream本体サーバーとの通信
 import type EventEmitter from "node:events";
-import type { RawData } from "ws";
+import { WebSocket } from "partysocket";
+import WS from "ws";
 import { logger } from "./logger.js";
 import type { Config, OptionUpdateMsg, UpstreamEventMap } from "./types.js";
-import { WebSocketClient } from "./ws.js";
 
 export async function createUpstream(config: Config, emitter: EventEmitter<UpstreamEventMap>) {
 	const wantedCollections = new Set<string>();
@@ -11,10 +11,7 @@ export async function createUpstream(config: Config, emitter: EventEmitter<Upstr
 	const url = new URL(config.upstreamURL);
 	url.searchParams.set("compress", "true");
 	url.searchParams.set("requireHello", "true");
-	const listener = (rawdata: RawData) => {
-		emitter.emit("message", rawdata);
-	};
-	const reconnectURL = () => {
+	const getURL = () => {
 		const url = new URL(config.upstreamURL);
 		url.searchParams.set("compress", "true");
 		// 全取得モードの場合はwantedCollectionsを削除
@@ -30,23 +27,42 @@ export async function createUpstream(config: Config, emitter: EventEmitter<Upstr
 				}
 			}
 		}
-		return url;
+		return url.toString();
 	};
-	const upstreamWs = new WebSocketClient(url, listener, reconnectURL);
+	// const upstreamWs = new WebSocketClient(url, listener, getURL);
+	const upstream = new WebSocket(getURL, [], { WebSocket: WS });
+	upstream.onmessage = async (ev) => {
+		const raw: Blob | ArrayBuffer | string = ev.data;
+		if (raw instanceof Blob) {
+			const ab = await raw.arrayBuffer();
+			emitter.emit("message", ab);
+		} else {
+			emitter.emit("message", raw);
+		}
+	};
 	emitter.on("updateWantedCollections", (collections) => {
 		if (collections === "all") {
 			allMode = true;
-			upstreamWs.send(createOptionUpdateMsg(undefined));
+			upstream.send(createOptionUpdateMsg(undefined));
 			logger.upstreamUpdate("all");
 		} else {
 			allMode = false;
 			wantedCollections.clear();
 			for (const collection of collections) wantedCollections.add(collection);
 			if (wantedCollections.size === 0) wantedCollections.add("example.dummy.collection");
-			upstreamWs.send(createOptionUpdateMsg(wantedCollections));
+			upstream.send(createOptionUpdateMsg(wantedCollections));
 			logger.upstreamUpdate(wantedCollections);
 		}
 	});
+	await new Promise<void>((resolve) => {
+		upstream.onopen = () => {
+			logger.info(`Connected to upstream server: ${upstream.url}`);
+			resolve();
+		};
+	});
+	setTimeout(() => {
+		upstream.reconnect();
+	}, 10*1000);
 }
 
 function createOptionUpdateMsg(wantedCollections: Set<string> | undefined): string {
