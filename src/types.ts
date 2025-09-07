@@ -14,7 +14,7 @@ export interface DownstreamEventMap {
 }
 
 export interface UpstreamEventMap {
-	message: [RawData];
+	message: [WSRawMessage];
 	updateWantedCollections: [Set<string> | "all"];
 }
 
@@ -35,3 +35,4 @@ export interface Config {
 }
 
 export type JetstreamEvent = AccountEvent | IdentityEvent | CommitEvent<string>;
+export type WSRawMessage = ArrayBuffer | string;
