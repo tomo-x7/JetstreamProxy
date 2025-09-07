@@ -32,4 +32,29 @@ Command Example:
 ./jetstreamproxy wss://jetstream2.us-west.bsky.network/subscribe 8000 ./log.txt
 ```
 
+### Supported Query Parameters
+- `wantedCollections`
+    - Mimics the behavior of the official Jetstream service
 
+- `compress`
+    - Enables zstd compression using a custom dictionary, similar to Jetstream
+    - Note: Communication between the Proxy and the Jetstream server is always compressed, regardless of this setting
+
+- `onlyCommit`
+    - This is a proprietary extension
+    - When set, the proxy will ignore AccountEvent and IdentityEvent messages
+ 
+Example URL:
+```URL
+ws://localhost:8000?wantedCollections=app.bsky.feed.post&wantedCollections=app.bsky.feed.like&onlyCommit
+```
+Including any other parameters in the URL will have no effect.
+
+Similarly, sending any data to the server will not trigger any action.
+
+## Environment
+Distributed binaries are for Linux only.
+
+Tested and confirmed working on Ubuntu 24.04
+
+Node.js 22 LTS is recommended, but it will likely also run on version 20
