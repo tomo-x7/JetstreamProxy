@@ -29,7 +29,6 @@ export async function createUpstream(config: Config, emitter: EventEmitter<Upstr
 		}
 		return url.toString();
 	};
-	// const upstreamWs = new WebSocketClient(url, listener, getURL);
 	const upstream = new WebSocket(getURL, [], { WebSocket: WS });
 	upstream.onmessage = async (ev) => {
 		const raw: Blob | ArrayBuffer | string = ev.data;
@@ -54,10 +53,20 @@ export async function createUpstream(config: Config, emitter: EventEmitter<Upstr
 			logger.upstreamUpdate(wantedCollections);
 		}
 	});
-	await new Promise<void>((resolve) => {
+	await new Promise<void>((resolve, reject) => {
+		const to = setTimeout(() => {
+			logger.error("Upstream initial connection timeout");
+			reject(new Error("Upstream initial connection timeout"));
+		}, 10 * 1000);
 		upstream.onopen = () => {
 			logger.info(`Connected to upstream server: ${upstream.url}`);
+			clearTimeout(to);
 			resolve();
+		};
+		upstream.onerror = (err) => {
+			logger.error(`Upstream connection error: ${String(err)}`);
+			clearTimeout(to);
+			reject(err);
 		};
 	});
 }
