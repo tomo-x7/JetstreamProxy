@@ -60,9 +60,6 @@ export async function createUpstream(config: Config, emitter: EventEmitter<Upstr
 			resolve();
 		};
 	});
-	setTimeout(() => {
-		upstream.reconnect();
-	}, 10*1000);
 }
 
 function createOptionUpdateMsg(wantedCollections: Set<string> | undefined): string {
