@@ -30,3 +30,20 @@ Configure using command-line arguments.
 Command Example:
 ```sh
 ./jetstreamproxy wss://jetstream2.us-west.bsky.network/subscribe 8000 ./log.txt
+
+Supported Query Parameters
+wantedCollections
+
+Mimics the behavior of the official Jetstream service
+
+compress
+
+Enables zstd compression using a custom dictionary, similar to Jetstream
+
+Note: Communication between the Proxy and the Jetstream server is always compressed, regardless of this setting
+
+onlyCommit
+
+This is a proprietary extension
+
+When set, the proxy will ignore AccountEvent and IdentityEvent messages
