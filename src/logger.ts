@@ -33,19 +33,19 @@ export const logger: logger = {
 		writeLog(`WARN: ${message}`);
 	},
 	info(message) {
-		console.info(message);
+		// console.info(message);
 		writeLog(`INFO: ${message}`);
 	},
 	logConnect: (id, isAll, wanted) => {
 		const str = isAll
 			? `INFO: Client ${id} connected: all mode`
 			: `INFO: Client ${id} connected: subscribed to [${Array.from(wanted).join(", ")}]`;
-		console.log(str);
+		// console.log(str);
 		writeLog(str);
 	},
 	logDisconnect: (id) => {
 		const str = `INFO: Client ${id} disconnected`;
-		console.log(str);
+		// console.log(str);
 		writeLog(str);
 	},
 	upstreamUpdate(collection) {
@@ -53,7 +53,7 @@ export const logger: logger = {
 			collection === "all"
 				? "INFO: Upstream connected with all collections"
 				: `INFO: Upstream updated collections: [${Array.from(collection).join(", ")}]`;
-		console.log(str);
+		// console.log(str);
 		writeLog(str);
 	},
 };

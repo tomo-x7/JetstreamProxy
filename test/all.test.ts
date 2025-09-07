@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { compressUsingDict, createCCtx, freeCCtx, init } from "@bokuweb/zstd-wasm";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
 import { afterAll, describe, expect, test } from "vitest";
 import { WebSocket, WebSocketServer } from "ws";
@@ -22,15 +24,14 @@ const commitEvent = <T extends string>(collection: T): CommitEvent<T> => ({
 	time_us: cursor++,
 	commit: { cid: "aa", collection, operation: "create", record: { $type: collection } as any, rev: "bb", rkey: "cc" },
 });
-// await init();
-// const dict = Buffer.from(ZstdDictionary, "base64");
+await init();
+const dict = readFileSync(join(import.meta.dirname, "../src/assets/zstd_dictionary/zstd_dictionary"));
 const compress = (data: object) => {
-	// const cctx = createCCtx();
-	// const buff = Buffer.from(JSON.stringify(data));
-	// const compressed = Buffer.from(compressUsingDict(cctx, buff, dict));
-	// freeCCtx(cctx);
-	// return compressed;
-	return JSON.stringify(data);
+	const cctx = createCCtx();
+	const buff = Buffer.from(JSON.stringify(data));
+	const compressed = Buffer.from(compressUsingDict(cctx, buff, dict));
+	freeCCtx(cctx);
+	return compressed;
 };
 const wait = () => new Promise((resolve) => setTimeout(resolve, 500));
 
