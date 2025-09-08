@@ -1,4 +1,5 @@
 # JetstreamProxy
+**Note:** This is the English translation of the README. For the original version, please see [README-ja.md](README-ja.md). In case of any discrepancies, the Japanese version takes precedence.
 
 A server that acts as a proxy for Jetstream.  
 It is useful when running multiple feed generators locally, as it helps reduce network traffic.
@@ -41,7 +42,7 @@ Command Example:
     - Note: Communication between the Proxy and the Jetstream server is always compressed, regardless of this setting
 
 - `onlyCommit`
-    - This is a proprietary extension
+    - This is an argument for a custom extension
     - When set, the proxy will ignore AccountEvent and IdentityEvent messages
  
 Example URL:
