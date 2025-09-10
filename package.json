@@ -24,7 +24,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.2.3",
 		"@skyware/jetstream": "^0.2.5",
-		"@types/node": "22",
+		"@types/node": "24",
 		"@types/ws": "^8.5.13",
 		"esbuild": "^0.25.4",
 		"postject": "1.0.0-alpha.6",
