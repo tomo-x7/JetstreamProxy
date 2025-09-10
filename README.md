@@ -1,5 +1,8 @@
 # JetstreamProxy
-**Note:** This is the English translation of the README. For the original version, please see [README-ja.md](README-ja.md). In case of any discrepancies, the Japanese version takes precedence.
+[![CodeQL](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/codeql.yml/badge.svg)](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/codeql.yml)
+[![typecheck and test](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/test.yml/badge.svg)](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/test.yml)
+[![lint and format](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/biome.yml/badge.svg)](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/biome.yml)  
+**Note:** This is the English translation of the README. For the original version, please see [README-ja.md](README-ja.md). In case of any discrepancies, the Japanese version takes precedence.  
 
 A server that acts as a proxy for Jetstream.  
 It is useful when running multiple feed generators locally, as it helps reduce network traffic.

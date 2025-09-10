@@ -1,4 +1,7 @@
 # JetstreamProxy
+[![CodeQL](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/codeql.yml/badge.svg)](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/codeql.yml)
+[![typecheck and test](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/test.yml/badge.svg)](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/test.yml)
+[![lint and format](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/biome.yml/badge.svg)](https://github.com/tomo-x7/JetstreamProxy/actions/workflows/biome.yml)  
 Jetstreamをプロキシするサーバーです。  
 ローカル内に複数のフィードジェネレーターを建てる場合に、通信量を抑えることができます。
 ## 機能
