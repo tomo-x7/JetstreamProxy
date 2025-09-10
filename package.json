@@ -16,7 +16,7 @@
 	"author": "tomo-x",
 	"license": "MIT",
 	"dependencies": {
-		"@atproto/common-web": "^0.4.2",
+		"@atproto/common-web": "^0.4.3",
 		"@bokuweb/zstd-wasm": "^0.0.27",
 		"partysocket": "^1.1.5",
 		"ws": "^8.18.0"
