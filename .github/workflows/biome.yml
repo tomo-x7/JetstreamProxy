@@ -15,7 +15,18 @@ jobs:
         with:
           persist-credentials: false
           submodules: true
+      - name: Cache Biome
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/biome
+            node_modules/.cache/@biomejs
+          key: ${{ runner.os }}-biome-${{ hashFiles('**/biome.json*', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-biome-
       - name: Setup Biome
         uses: biomejs/setup-biome@v2
+        with:
+          version: latest
       - name: Run Biome
         run: biome ci .

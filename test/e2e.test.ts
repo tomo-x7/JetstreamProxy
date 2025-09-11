@@ -38,7 +38,7 @@ const wait = () => new Promise((resolve) => setTimeout(resolve, 500));
 describe("E2E", async () => {
 	const upstreamServer = new WebSocketServer({ port: 8001 });
 	await new Promise<void>((resolve) => upstreamServer.on("listening", () => resolve()));
-	process.argv[2] = "ws://127.0.0.1:8001";
+	process.argv[2] = "ws://localhost:8001";
 	process.argv[3] = "8000";
 	process.argv[4] = join(import.meta.dirname, "log.txt");
 	await import("../src/main.js");
@@ -50,13 +50,13 @@ describe("E2E", async () => {
 	);
 
 	describe("simple case", async () => {
-		const ws1 = new WebSocket("ws://127.0.0.1:8000/");
-		const ws2 = new WebSocket("ws://127.0.0.1:8000/?wantedCollections=app.bsky.feed.post");
-		const ws3 = new WebSocket("ws://127.0.0.1:8000/?wantedCollections=app.bsky.feed.*");
-		const ws4 = new WebSocket("ws://127.0.0.1:8000/?onlyCommit=true");
-		const ws5 = new WebSocket("ws://127.0.0.1:8000/?wantedCollections=app.bsky.feed.post&onlyCommit=true");
+		const ws1 = new WebSocket("ws://localhost:8000/");
+		const ws2 = new WebSocket("ws://localhost:8000/?wantedCollections=app.bsky.feed.post");
+		const ws3 = new WebSocket("ws://localhost:8000/?wantedCollections=app.bsky.feed.*");
+		const ws4 = new WebSocket("ws://localhost:8000/?onlyCommit=true");
+		const ws5 = new WebSocket("ws://localhost:8000/?wantedCollections=app.bsky.feed.post&onlyCommit=true");
 		const ws6 = new WebSocket(
-			"ws://127.0.0.1:8000/?wantedCollections=app.bsky.feed.post&wantedCollections=com.example.proxy.test",
+			"ws://localhost:8000/?wantedCollections=app.bsky.feed.post&wantedCollections=com.example.proxy.test",
 		);
 		const data: (AccountEvent | IdentityEvent | CommitEvent<string>)[] = [
 			accountEvent(),
