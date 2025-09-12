@@ -10,7 +10,9 @@
 		"allowJs": true,
 		"checkJs": true,
 		"resolveJsonModule": true,
-		"moduleResolution": "bundler"
+		"moduleResolution": "bundler",
+		"incremental": true,
+		"tsBuildInfoFile": "node_modules/.cache/.tsbuildinfo"
 	},
 	"include": ["src/**/*.ts", "build.ts"]
 }
