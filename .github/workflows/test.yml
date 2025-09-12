@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           persist-credentials: false
-          submodules: true
+          submodules: false
       - name: Setup pnpm
         uses: pnpm/action-setup@v4.1.0
         with:
@@ -28,27 +28,20 @@ jobs:
         with:
           node-version: 22.x
           cache: pnpm
-      - name: Cache TypeScript incremental builds
-        uses: actions/cache@v4
-        with:
-          path: |
-            **/*.tsbuildinfo
-            node_modules/.cache
-          key: ${{ runner.os }}-typescript-${{ hashFiles('**/tsconfig*.json') }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-typescript-${{ hashFiles('**/tsconfig*.json') }}-
-            ${{ runner.os }}-typescript-
-      - name: Cache Vitest
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules/.vitest
-            coverage
-          key: ${{ runner.os }}-vitest-${{ hashFiles('**/vitest.config.*', '**/package.json') }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-vitest-${{ hashFiles('**/vitest.config.*', '**/package.json') }}-
-            ${{ runner.os }}-vitest-
       - name: Install deps
         run: pnpm install --frozen-lockfile
+      - name: Restore tsbuildinfo
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules/.cache/*.tsbuildinfo
+          key: ${{ runner.os }}-tsbuild-${{ hashFiles('**/tsconfig*.json') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-tsbuild-${{ hashFiles('**/tsconfig*.json') }}-
       - name: Run test
         run: pnpm run test
+      - name: Save tsbuildinfo
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: node_modules/.cache/*.tsbuildinfo
+          key: ${{ runner.os }}-tsbuild-${{ hashFiles('**/tsconfig*.json') }}-${{ github.run_id }}
