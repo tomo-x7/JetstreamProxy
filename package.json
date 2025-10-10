@@ -19,13 +19,13 @@
 		"@atproto/common-web": "^0.4.3",
 		"@bokuweb/zstd-wasm": "^0.0.27",
 		"partysocket": "^1.1.6",
-		"ws": "^8.18.0"
+		"ws": "^8.18.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.3",
 		"@skyware/jetstream": "^0.2.5",
 		"@types/node": "22",
-		"@types/ws": "^8.5.13",
+		"@types/ws": "^8.18.1",
 		"mock-socket": "^9.3.1",
 		"esbuild": "^0.25.9",
 		"postject": "1.0.0-alpha.6",
