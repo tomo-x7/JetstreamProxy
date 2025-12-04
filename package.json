@@ -29,7 +29,7 @@
 		"mock-socket": "^9.3.1",
 		"esbuild": "^0.27.0",
 		"postject": "1.0.0-alpha.6",
-		"tsx": "^4.20.6",
+		"tsx": "^4.21.0",
 		"typescript": "^5.9.3",
 		"vitest": "^4.0.15",
 		"vitest-websocket-mock": "^0.5.0"
