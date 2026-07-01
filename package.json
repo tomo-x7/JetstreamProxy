@@ -19,7 +19,7 @@
 		"@atproto/common-web": "^0.4.21",
 		"@bokuweb/zstd-wasm": "^0.0.27",
 		"partysocket": "^1.1.18",
-		"ws": "^8.19.0"
+		"ws": "^8.21.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.3",
