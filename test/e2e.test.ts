@@ -59,16 +59,11 @@ describe("イベントの配信", () => {
 	];
 	const [account, identity, post, like, proxyTest] = events;
 
+	// フィルタの細かい条件は util.test.ts の createFilter で確認する
 	test.each<[string, JetstreamEvent[]]>([
 		["/", [account, identity, post, like, proxyTest]],
 		["/?wantedCollections=app.bsky.feed.post", [account, identity, post]],
-		["/?wantedCollections=app.bsky.feed.*", [account, identity, post, like]],
-		[
-			"/?wantedCollections=app.bsky.feed.post&wantedCollections=com.example.proxy.test",
-			[account, identity, post, proxyTest],
-		],
 		["/?onlyCommit=true", [post, like, proxyTest]],
-		["/?wantedCollections=app.bsky.feed.post&onlyCommit=true", [post]],
 	])("%s で接続するとフィルタ済みのイベントを受け取る", async (path, expected) => {
 		const client = await connectClient(path);
 
