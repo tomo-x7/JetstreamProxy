@@ -19,9 +19,12 @@ async function main() {
 	const dict = await globalThis.getAsset("zstd_dictionary");
 	const decompress = (data: Buffer) => {
 		const dctx = createDCtx();
-		const raw = decompressUsingDict(dctx, data, dict);
-		freeDCtx(dctx);
-		return Buffer.from(raw).toString("utf-8");
+		try {
+			const raw = decompressUsingDict(dctx, data, dict);
+			return Buffer.from(raw).toString("utf-8");
+		} finally {
+			freeDCtx(dctx);
+		}
 	};
 	const clientMap = new Map<TID, Set<string> | "all">();
 
@@ -56,13 +59,23 @@ async function main() {
 			logger.error(`Failed to parse raw data: ${String(rawdata)}`);
 			return;
 		}
-		const decompressed = decompress(buff);
-		const data = JSON.parse(decompressed) as AccountEvent | IdentityEvent | CommitEvent<string>;
-		if (data.kind === "commit") {
+		let data: AccountEvent | IdentityEvent | CommitEvent<string>;
+		try {
+			data = JSON.parse(decompress(buff));
+		} catch (e) {
+			// 壊れたデータはログに残して破棄する
+			logger.error(`Failed to decode upstream message: ${String(e)}`);
+			return;
+		}
+		if (data?.kind === "commit") {
+			if (typeof data.commit?.collection !== "string") {
+				logger.error(`Invalid commit event received: ${JSON.stringify(data)}`);
+				return;
+			}
 			downstreamEmmitter.emit("message", data, data.commit.collection, rawdata);
-		} else if (data.kind === "identity") {
+		} else if (data?.kind === "identity") {
 			downstreamEmmitter.emit("message", data, undefined, rawdata);
-		} else if (data.kind === "account") {
+		} else if (data?.kind === "account") {
 			downstreamEmmitter.emit("message", data, undefined, rawdata);
 		} else {
 			logger.warn(`Unknown message kind received: ${JSON.stringify(data)}`);

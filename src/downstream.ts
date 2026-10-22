@@ -32,32 +32,8 @@ export function createDownstream(config: Config, emitter: EventEmitter<Downstrea
 			ws.close(4000, "bad collection");
 			return;
 		}
-		const onReject = (rejectid: TID, reason: string) => {
-			if (rejectid === tid) {
-				ws.removeAllListeners();
-				ws.close(4000, reason);
-				emitter.emit("disconnect", tid);
-				emitter.off("rejectConnect", onReject);
-				emitter.off("acceptConnect", onAccept);
-				logger.warn(`Client ${tid} rejected: ${reason}`);
-			}
-		};
-		const onAccept = () => {
-			emitter.off("rejectConnect", onReject);
-			emitter.off("acceptConnect", onAccept);
-		};
-		emitter.on("rejectConnect", onReject);
-		emitter.on("acceptConnect", onAccept);
-		emitter.emit("connect", tid, allMode ? "all" : wantedCollections);
-		ws.on("close", () => {
-			emitter.emit("disconnect", tid);
-			emitter.on("rejectConnect", onReject);
-			emitter.on("acceptConnect", onAccept);
-			ws.removeAllListeners();
-			logger.logDisconnect(tid.toString());
-		});
 		const send = createSend(ws, compress);
-		emitter.on("message", (ev, col, raw) => {
+		const onMessage = (...[ev, col, raw]: DownstreamEventMap["message"]) => {
 			switch (ev.kind) {
 				case "account":
 					if (!onlyCommit) send(ev, raw);
@@ -70,7 +46,36 @@ export function createDownstream(config: Config, emitter: EventEmitter<Downstrea
 					if (allMode) return void send(ev, raw);
 					if (filter(col)) return void send(ev, raw);
 			}
+		};
+		// このクライアント用に登録したリスナーを全て外す
+		const removeListeners = () => {
+			emitter.off("message", onMessage);
+			emitter.off("rejectConnect", onReject);
+			emitter.off("acceptConnect", onAccept);
+			ws.removeAllListeners();
+		};
+		const onReject = (rejectid: TID, reason: string) => {
+			if (rejectid !== tid) return;
+			removeListeners();
+			ws.close(4000, reason);
+			emitter.emit("disconnect", tid);
+			logger.warn(`Client ${tid} rejected: ${reason}`);
+		};
+		const onAccept = (acceptid: TID) => {
+			if (acceptid !== tid) return;
+			emitter.off("rejectConnect", onReject);
+			emitter.off("acceptConnect", onAccept);
+		};
+		// connectの処理中に拒否されてもリスナーが残らないよう、emitより前に全て登録する
+		emitter.on("rejectConnect", onReject);
+		emitter.on("acceptConnect", onAccept);
+		emitter.on("message", onMessage);
+		ws.on("close", () => {
+			removeListeners();
+			emitter.emit("disconnect", tid);
+			logger.logDisconnect(tid.toString());
 		});
+		emitter.emit("connect", tid, allMode ? "all" : wantedCollections);
 	});
 }
 
