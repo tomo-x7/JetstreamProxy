@@ -1,5 +1,6 @@
 import { createWriteStream } from "node:fs";
 import { config } from "./config.js";
+import type { Subscription } from "./types.js";
 
 const logstream = createWriteStream(config.logFile, { flags: "a" });
 function writeLog(log: string) {
@@ -19,9 +20,9 @@ interface logger {
 	error: (message: string) => void;
 	warn: (message: string) => void;
 	info: (message: string) => void;
-	logConnect: (id: string, isAll: boolean, wanted: Set<string>) => void;
+	logConnect: (id: string, subscription: Subscription) => void;
 	logDisconnect: (id: string) => void;
-	upstreamUpdate: (collection: Set<string> | "all") => void;
+	upstreamUpdate: (subscription: Subscription | undefined) => void;
 }
 export const logger: logger = {
 	error: (message) => {
@@ -36,27 +37,23 @@ export const logger: logger = {
 		// console.info(message);
 		writeLog(`INFO: ${message}`);
 	},
-	logConnect: (id, isAll, wanted) => {
-		const str = isAll
-			? `INFO: Client ${id} connected: all mode`
-			: `INFO: Client ${id} connected: subscribed to [${Array.from(wanted).join(", ")}]`;
-		// console.log(str);
-		writeLog(str);
+	logConnect: (id, subscription) => {
+		writeLog(`INFO: Client ${id} connected: ${describe(subscription)}`);
 	},
 	logDisconnect: (id) => {
 		const str = `INFO: Client ${id} disconnected`;
 		// console.log(str);
 		writeLog(str);
 	},
-	upstreamUpdate(collection) {
-		const str =
-			collection === "all"
-				? "INFO: Upstream connected with all collections"
-				: `INFO: Upstream updated collections: [${Array.from(collection).join(", ")}]`;
-		// console.log(str);
-		writeLog(str);
+	upstreamUpdate(subscription) {
+		writeLog(`INFO: Upstream updated: ${subscription ? describe(subscription) : "no clients"}`);
 	},
 };
+
+function describe({ kinds, collections }: Subscription): string {
+	const list = (set: ReadonlySet<string> | "all") => (set === "all" ? "all" : `[${Array.from(set).join(", ")}]`);
+	return `kinds ${list(kinds)}, collections ${list(collections)}`;
+}
 
 const red = "\u001b[31m";
 const yellow = "\u001b[33m";

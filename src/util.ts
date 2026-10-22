@@ -1,5 +1,3 @@
-import type { TID } from "@atproto/common-web";
-
 export function parseNSID(nsid: string): { nsid: string; hasPrefix: boolean } | false {
 	// 空文字列チェック
 	if (!nsid || nsid.length === 0) return false;
@@ -122,35 +120,6 @@ export function parsePort(port: unknown): number | false {
 	return false;
 }
 
-/**新規クライアント接続時は上限に達しないことを事前にvalidateMaxWantedCollectionで確認すること */
-export function parseClientMap(map: Map<TID, Set<string> | "all">): Set<string> | "all" {
-	const wanted = new Set<string>();
-	for (const [key, cols] of map) {
-		if (cols === "all") {
-			return "all";
-		} else {
-			// TODO: app.bsky.feed.*とapp.bsky.feed.likeのような重複を防ぐ
-			for (const col of cols) wanted.add(col);
-		}
-	}
-	if (wanted.size > 100) throw new Error("Too many wanted collections (maximum 100 allowed)");
-	if (wanted.size === 0) wanted.add("example.dummy.collection");
-	return wanted;
-}
-
-export function validateMaxWantedCollection(
-	oldset: Map<TID, Set<string> | "all"> | Set<string>,
-	newset: Set<string>,
-): boolean {
-	const set = oldset instanceof Set ? oldset : new Set<string>();
-	if (oldset instanceof Map) {
-		for (const connect of oldset.values())
-			if (connect !== "all") for (const collection of connect) set.add(collection);
-	}
-	for (const collection of newset) set.add(collection);
-	// TODO: app.bsky.feed.*とapp.bsky.feed.likeのような重複を防ぐ
-	return set.size <= 100;
-}
 const CACHE = ["app.bsky.feed.post", "app.bsky.feed.like", "app.bsky.feed.repost", "app.bsky.graph.follow"];
 export function createFilter(wanted: Set<string>): ((col: string) => boolean) | false {
 	if (wanted.size === 0) return () => true;

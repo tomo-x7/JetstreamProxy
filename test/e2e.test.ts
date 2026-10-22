@@ -1,46 +1,21 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { compressUsingDict, createCCtx, freeCCtx, init } from "@bokuweb/zstd-wasm";
 import type { AccountEvent, CommitEvent, IdentityEvent } from "@skyware/jetstream";
 import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import WS from "vitest-websocket-mock";
-import { WebSocket } from "ws";
-import type { JetstreamEvent, OptionUpdateMsg } from "../src/types.js";
+import type { OptionUpdateMsg } from "../src/protocol/v1.js";
+import { closeAllClients, compress, connectClient as connect, startProxy } from "./helpers.js";
 
-// Proxy → Jetstream(upstream) の通信だけをモックに差し替える。
-// upstream.ts は `ws` の default export を使い、downstream.ts は named export の WebSocketServer を使うので、
-// default export だけ差し替えれば Proxy → クライアント(downstream) は本物の ws のまま動く。
-vi.mock("ws", async (importOriginal) => {
-	const { WebSocket: MockWebSocket } = await import("mock-socket");
-	// mock-socket の MessageEvent は ports が null で、partysocket が Node の MessageEvent に複製する際に落ちるので補う
-	class MockUpstreamWebSocket extends MockWebSocket {
-		dispatchEvent(event: Event & { ports?: unknown }, ...args: unknown[]) {
-			if (event.ports === null) event.ports = [];
-			return super.dispatchEvent(event, ...args);
-		}
-	}
-	return { ...(await importOriginal<typeof import("ws")>()), default: MockUpstreamWebSocket };
-});
+vi.mock("ws", async (importOriginal) => (await import("./mock-ws.js")).mockUpstreamWebSocket(importOriginal));
+
+type JetstreamEvent = AccountEvent | IdentityEvent | CommitEvent<string>;
 
 const UPSTREAM_URL = "ws://localhost:8001";
 const PROXY_URL = "ws://localhost:8000";
 
 let upstream: WS;
-let dict: Buffer;
 
 beforeAll(async () => {
-	await init();
-	dict = readFileSync(join(import.meta.dirname, "../src/assets/zstd_dictionary/zstd_dictionary"));
-
-	// Proxyは起動時にprocess.argvを読むので、import前に設定する
 	upstream = new WS(UPSTREAM_URL);
-	process.argv[2] = UPSTREAM_URL;
-	process.argv[3] = "8000";
-	process.argv[4] = join(import.meta.dirname, "log.txt");
-	await import("../src/main.js");
-	await upstream.connected;
-	// downstream サーバーの起動を待つ
-	await vi.waitFor(async () => expect(await canConnectToProxy()).toBe(true));
+	await startProxy(["--upstream", UPSTREAM_URL, "--port", "8000"], PROXY_URL);
 });
 
 // Proxyは1つを全テストで共有するので、テストごとに全クライアントを切断して初期状態に戻す
@@ -156,50 +131,8 @@ function lastWantedCollections() {
 	return msg.payload.wantedCollections;
 }
 
-type Client = Awaited<ReturnType<typeof connectClient>>;
-/** テスト間で接続が残らないよう、afterEachで全て切断する */
-const openClients = new Set<Client>();
-
-/** Proxyに接続し、受信したイベントと切断理由を記録するクライアントを返す */
-async function connectClient(path: string) {
-	const ws = new WebSocket(`${PROXY_URL}${path}`);
-	const received: unknown[] = [];
-	ws.on("message", (data) => received.push(JSON.parse(data.toString("utf-8"))));
-	const closed = new Promise<{ code: number; reason: string }>((resolve) =>
-		ws.on("close", (code, reason) => resolve({ code, reason: reason.toString("utf-8") })),
-	);
-	await new Promise((resolve) => ws.on("open", resolve));
-
-	const client = {
-		received,
-		closed,
-		close: async () => {
-			ws.close();
-			await closed;
-		},
-		terminate: () => ws.terminate(),
-		isOpen: () => ws.readyState === WebSocket.OPEN,
-	};
-	openClients.add(client);
-	closed.then(() => openClients.delete(client));
-	return client;
-}
-
-async function closeAllClients() {
-	await Promise.all(Array.from(openClients, (client) => client.close()));
-}
-
-async function canConnectToProxy() {
-	const ws = new WebSocket(PROXY_URL);
-	const ok = await new Promise<boolean>((resolve) => {
-		ws.on("open", () => resolve(true));
-		ws.on("error", () => resolve(false));
-	});
-	if (ok) {
-		ws.close();
-		await new Promise((resolve) => ws.on("close", resolve));
-	}
-	return ok;
+function connectClient(path: string) {
+	return connect(`${PROXY_URL}${path}`);
 }
 
 // ===== Jetstreamのイベント =====
@@ -235,15 +168,4 @@ function commitEvent(collection: string): CommitEvent<string> {
 			rkey: "cc",
 		},
 	};
-}
-
-/**
- * Jetstreamと同じくカスタム辞書でzstd圧縮する。
- * mock-socket は Buffer を文字列化してしまうので ArrayBuffer で返す。
- */
-function compress(event: JetstreamEvent): ArrayBuffer {
-	const cctx = createCCtx();
-	const compressed = compressUsingDict(cctx, Buffer.from(JSON.stringify(event)), dict);
-	freeCCtx(cctx);
-	return new Uint8Array(compressed).buffer;
 }
