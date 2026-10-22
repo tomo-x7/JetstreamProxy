@@ -117,6 +117,40 @@ describe("upstreamへのoptions_update", () => {
 	});
 });
 
+describe("ネットワークエラー", () => {
+	// partysocketの再接続は最大5秒ほど待つので長めにする
+	test(
+		"upstreamとの接続が切れると、接続中のクライアントに必要なwantedCollectionsで再接続する",
+		{ timeout: 15_000 },
+		async () => {
+			const client = await connectClient("/?wantedCollections=app.bsky.feed.post");
+			await expect.poll(lastWantedCollections).toEqual(["app.bsky.feed.post"]);
+
+			upstream.error();
+			upstream = new WS(UPSTREAM_URL);
+			const reconnected = await upstream.connected;
+
+			expect(new URL(reconnected.url).searchParams.getAll("wantedCollections")).toEqual(["app.bsky.feed.post"]);
+			// クライアントは切断されず、再接続後のイベントも受け取れる
+			const post = commitEvent("app.bsky.feed.post");
+			upstream.send(compress(post));
+			await expect.poll(() => client.received).toEqual([post]);
+		},
+	);
+
+	test("クライアントとの接続が異常切断されると、そのクライアントの分は購読から外れる", async () => {
+		const postClient = await connectClient("/?wantedCollections=app.bsky.feed.post");
+		const likeClient = await connectClient("/?wantedCollections=app.bsky.feed.like");
+		await expect.poll(lastWantedCollections).toEqual(["app.bsky.feed.post", "app.bsky.feed.like"]);
+
+		// close handshakeをせずにTCP接続を切る
+		likeClient.terminate();
+
+		await expect.poll(lastWantedCollections).toEqual(["app.bsky.feed.post"]);
+		expect(postClient.isOpen()).toBe(true);
+	});
+});
+
 // ===== helpers =====
 
 /** upstreamが最後に受け取ったoptions_updateのwantedCollections */
@@ -148,6 +182,8 @@ async function connectClient(path: string) {
 			ws.close();
 			await closed;
 		},
+		terminate: () => ws.terminate(),
+		isOpen: () => ws.readyState === WebSocket.OPEN,
 	};
 	openClients.add(client);
 	closed.then(() => openClients.delete(client));
