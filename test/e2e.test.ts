@@ -26,8 +26,13 @@ const UPSTREAM_URL = "ws://localhost:8001";
 const PROXY_URL = "ws://localhost:8000";
 
 let upstream: WS;
+let dict: Buffer;
 
 beforeAll(async () => {
+	await init();
+	dict = readFileSync(join(import.meta.dirname, "../src/assets/zstd_dictionary/zstd_dictionary"));
+
+	// Proxyは起動時にprocess.argvを読むので、import前に設定する
 	upstream = new WS(UPSTREAM_URL);
 	process.argv[2] = UPSTREAM_URL;
 	process.argv[3] = "8000";
@@ -38,8 +43,10 @@ beforeAll(async () => {
 	await vi.waitFor(async () => expect(await canConnectToProxy()).toBe(true));
 });
 
+// Proxyは1つを全テストで共有するので、テストごとに全クライアントを切断して初期状態に戻す
 afterEach(async () => {
 	await closeAllClients();
+	await vi.waitFor(() => expect(lastWantedCollections()).toEqual(["example.dummy.collection"]));
 });
 
 describe("イベントの配信", () => {
@@ -78,7 +85,7 @@ describe("接続の拒否", () => {
 		expect(await client.closed).toEqual({ code: 4000, reason: "bad collection" });
 	});
 
-	test("wantedCollectionsの合計が100を超えると切断される", async () => {
+	test("wantedCollectionsを100個より多く指定すると切断される", async () => {
 		const collections = Array.from({ length: 101 }, (_, i) => `com.example.collection${i}`);
 		const client = await connectClient(`/?${collections.map((c) => `wantedCollections=${c}`).join("&")}`);
 
@@ -91,6 +98,9 @@ describe("接続の拒否", () => {
 
 describe("upstreamへのoptions_update", () => {
 	test("接続中のクライアントに合わせてwantedCollectionsが更新される", async () => {
+		// 前のテストのメッセージで判定しないよう消しておく
+		upstream.messages.length = 0;
+
 		const postClient = await connectClient("/?wantedCollections=app.bsky.feed.post");
 		await expect.poll(lastWantedCollections).toEqual(["app.bsky.feed.post"]);
 
@@ -111,7 +121,9 @@ describe("upstreamへのoptions_update", () => {
 
 /** upstreamが最後に受け取ったoptions_updateのwantedCollections */
 function lastWantedCollections() {
-	const msg = JSON.parse(String(upstream.messages.at(-1))) as OptionUpdateMsg;
+	const last = upstream.messages.at(-1);
+	if (last === undefined) throw new Error("upstreamがまだメッセージを受け取っていない");
+	const msg = JSON.parse(String(last)) as OptionUpdateMsg;
 	return msg.payload.wantedCollections;
 }
 
@@ -152,7 +164,10 @@ async function canConnectToProxy() {
 		ws.on("open", () => resolve(true));
 		ws.on("error", () => resolve(false));
 	});
-	ws.close();
+	if (ok) {
+		ws.close();
+		await new Promise((resolve) => ws.on("close", resolve));
+	}
 	return ok;
 }
 
@@ -195,8 +210,6 @@ function commitEvent(collection: string): CommitEvent<string> {
  * Jetstreamと同じくカスタム辞書でzstd圧縮する。
  * mock-socket は Buffer を文字列化してしまうので ArrayBuffer で返す。
  */
-await init();
-const dict = readFileSync(join(import.meta.dirname, "../src/assets/zstd_dictionary/zstd_dictionary"));
 function compress(event: JetstreamEvent): ArrayBuffer {
 	const cctx = createCCtx();
 	const compressed = compressUsingDict(cctx, Buffer.from(JSON.stringify(event)), dict);
